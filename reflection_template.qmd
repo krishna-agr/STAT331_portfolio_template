@@ -22,25 +22,25 @@ execute:
 -   `csv`
 
 ```{r wd-1-csv}
-
+#Any Assignment that occurs most often
 ```
 
 -   `xlsx`
 
 ```{r wd-1-xlsx}
-
+#maybe some practice activity
 ```
 
 -   `txt`
 
 ```{r wd-1-txt}
-
+#maybe some preview activity or practice activity
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
 
 ```{r wd-2}
-
+#Lab 4 Q6
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -48,13 +48,13 @@ execute:
 -   numeric
 
 ```{r wd-3-numeric}
-
+#Lab 3 Q 13
 ```
 
 -   character -- specifically a string
 
 ```{r wd-3-string}
-
+#Lab 3 Q 13
 ```
 
 -   factor
@@ -66,7 +66,7 @@ execute:
 -   date
 
 ```{r wd-3-date}
-
+# Practice Activity # 5
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -86,13 +86,13 @@ execute:
 -   factor
 
 ```{r wd-4-factor}
-
+# Lab #5
 ```
 
 -   date
 
 ```{r wd-4-date}
-
+# Lab #5 and Practice Activity #5
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -189,26 +189,66 @@ I've done this in the following provided assignments:
 
 -   numeric variables
 
-```{r dvs-1-num}
-
+```{r dvs-1-num} Lab 2 Q6}
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +  
+   geom_jitter(alpha=.3)
 ```
 
 -   numeric variables and categorical variables
 
-```{r dvs-2-num-cat}
-
+```{r dvs-2-num-cat} Lab 4 Q7}
+ggplot(data = q7_california_avocados, 
+       mapping = aes(x = region, 
+                     y = percent_sold, 
+                     fill = Avocado_Size))+
+  geom_col(position = "fill") +
+  facet_wrap(~type) +
+  # Use dodge function to offset the x axis labels
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  # Specify the legend title and labels and change the colors of the graph 
+  scale_fill_manual(values = c("#A6CEE3", 
+                               "#1F78B4", 
+                               "#B2DF8A"),
+                    name = "Avocado Size",
+                    labels = c("Small", 
+                               "Large", 
+                               "Extra-Large")) +
+  # Specify the Axis Labels
+  labs(x = 'Region of CA',
+       y = "Proporation of Mean Avocados Sold")
 ```
 
 -   categorical variables
 
-```{r dvs-2-cat}
-
+```{r dvs-2-cat} Lab 5, Q3}
+ggplot(data = count_survey,
+       mapping = aes(y = day_week,
+                     x = n,
+                     fill = day_week)) +
+  geom_bar(stat = "identity",
+           show.legend = FALSE) +
+  labs(y = '',
+       x = "", 
+       title = "Number of Rodents Captured by the Day of the Week") +
+  theme(plot.title.position = 'plot') 
+  
 ```
 
 -   dates
 
-```{r dvs-2-date}
-
+```{r dvs-2-date} Lab 5 Q4}
+ggplot(data = mean_weight_survey, 
+       mapping = aes(y = mean_weight, 
+                     x = year,
+                     color = fct_reorder2(.f = genus,
+                                          .y = mean_weight,
+                                          .x = year))) +
+  geom_line() +
+  labs(y = '',
+       x = "Time", 
+       title = "Mean Weight (grams) by Genus Over Time") +
+  guides(color = guide_legend(title = "Genus")) +
+  theme(plot.title.position = 'plot') 
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -267,34 +307,6 @@ I've done this in the following provided assignments:
 
 ```
 
-**DVS-6: I can create tables which make my summaries clear to the reader.**
-
--   Example 1
-
-```{r dvs-6-1}
-
-```
-
--   Example 2
-
-```{r dvs-6-2}
-
-```
-
-**DVS-7: I show creativity in my tables.**
-
--   Example 1
-
-```{r dvs-7-1}
-
-```
-
--   Example 2
-
-```{r dvs-7-2}
-
-```
-
 ## Program Efficiency
 
 **PE-1: I can write concise code which does not repeat itself.**
@@ -307,46 +319,15 @@ I've done this in the following provided assignments:
 
 -   `across()`
 
-```{r pe-1-across}
-
-```
-
--   `map()` functions
-
-```{r pe-1-map-1}
-
-```
-
-**PE-2: I can write functions to reduce repetition in my code.**
-
--   Example 1
-
-```{r pe2-1}
-
-```
-
--   Example 2
-
-```{r pe2-2}
-
-```
-
-**PE-3:I can use iteration to reduce repetition in my code.**
-
--   `across()`
-
-```{r pe-3-across}
-
-```
-
--   `map()` functions (Provide 2 Examples)
-
-```{r pe-3-map-1}
-
-```
-
-```{r pe-3-map-2}
-
+```{r pe-1-across} Lab 3, Q4}
+# Changing Characters to Factors
+hiphop_clean <- hiphop |>
+  mutate(across(c(word,
+                  sex,
+                  ethnic,
+                  familiarity),
+                  as.factor
+                ))
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -360,36 +341,6 @@ I've done this in the following provided assignments:
 -   Example 2
 
 ```{r pe-4-2}
-
-```
-
-## Data Simulation & Modeling
-
-**DSM-1: I can simulate data from a *variety* of probability models.**
-
--   Example 1
-
-```{r dsm-1-1}
-
-```
-
--   Example 2
-
-```{r dsm-1-2}
-
-```
-
-**DSM-2: I can fit a linear regression and extract necessary summary measures.**
-
--   Example 1
-
-```{r dsm-2-1}
-
-```
-
--   Example 2
-
-```{r dsm-2-2}
 
 ```
 
