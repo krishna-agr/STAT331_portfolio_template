@@ -185,7 +185,7 @@ I've done this in the following provided assignments:
 
 ## Data Visualization & Summarization
 
-**DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
+**of variable types (e.g., numeric, character, factor, date)**
 
 -   numeric variables
 
@@ -255,56 +255,173 @@ ggplot(data = mean_weight_survey,
 
 -   Example 1
 
-```{r dvs-2-1}
-
+```{r dvs-2-1} Lab 5 Q4}
+ggplot(data = mean_weight_survey, 
+       mapping = aes(y = mean_weight, 
+                     x = year,
+                     color = fct_reorder2(.f = genus,
+                                          .y = mean_weight,
+                                          .x = year))) +
+  geom_line() +
+  labs(y = '',
+       x = "Time", 
+       title = "Mean Weight (grams) by Genus Over Time") +
+  guides(color = guide_legend(title = "Genus")) +
+  theme(plot.title.position = 'plot') 
 ```
 
 -   Example 2
 
-```{r dvs-2-2}
-
+```{r dvs-2-2} Lab 4 Q7}
+# Create a column chart
+ggplot(data = q7_california_avocados, 
+       mapping = aes(x = region, 
+                     y = percent_sold, 
+                     fill = Avocado_Size))+
+  geom_col(position = "fill") +
+  facet_wrap(~type) +
+  # Use dodge function to offset the x axis labels
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  # Specify the legend title and labels and change the colors of the graph 
+  scale_fill_manual(values = c("#A6CEE3", 
+                               "#1F78B4", 
+                               "#B2DF8A"),
+                    name = "Avocado Size",
+                    labels = c("Small", 
+                               "Large", 
+                               "Extra-Large")) +
+  # Specify the Axis Labels
+  labs(x = 'Region of CA',
+       y = "Proporation of Mean Avocados Sold")
 ```
 
 **DVS-3: I show creativity in my visualizations**
 
 -   Example 1
 
-```{r dvs-3-1}
-
+```{r dvs-3-1} Lab 4 Q6}
+ggplot(data = california_avocados, 
+       mapping = aes(x = mean_price, 
+                     y = region)) +
+  geom_line(mapping = aes(group = region)) +
+  geom_point(stat = "identity",
+             mapping = aes(color = type)) +
+  labs(title = "Mean Price between Organic and Convential Avocados by Region",
+       y = '',
+       x = 'Mean Price of Avocado ($)') 
 ```
 
 -   Example 2
 
-```{r dvs-3-2}
-
+```{r dvs-3-2} Challange 2}
+ggplot(data = surveys, mapping = aes(y = species, x = weight, fill = species)) +
+  geom_density_ridges(show.legend = FALSE) +
+  labs(y = "Species of Animal",
+       x = "Weight (grams)", 
+       title = "Weight in grams vs Species of Animal")   
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
 
 -   Example 1
 
-```{r dvs-4-1}
+```{r dvs-4-1} Lab 3 Q11}
+#| output: false
+twenty_younger <- hiphop_clean |>
+  filter(age < 20) |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity))
+  
+twenty_younger |>
+  slice_max(mean_fam)
 
+twenty_younger |>
+  slice_min(mean_fam)
 ```
 
 -   Example 2
 
-```{r dvs-4-2}
-
+```{r dvs-4-2} Lab 4 Q7}
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
 
 -   Example 1
 
-```{r dvs-5-1}
-
+```{r dvs-5-1} Lab 4 Q6}
+california_avocados <- city_avocados |>
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select relavent variables
+  select(AveragePrice,
+         type,
+         region) |>
+  group_by(region, type) |>
+  # Calculate the mean price for every region and type of avocado combination
+  summarise(mean_price = mean(AveragePrice))
 ```
 
 -   Example 2
 
-```{r dvs-5-2}
-
+```{r dvs-5-2} Lab 4 Q7}
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 ```
 
 ## Program Efficiency
