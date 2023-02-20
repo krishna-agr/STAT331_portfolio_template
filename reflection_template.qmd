@@ -28,14 +28,24 @@ surveys <- read_csv(here("Week#2", "Lab_Week_2", "surveys.csv"))
 
 -   `xlsx`
 
-```{r wd-1-xlsx}
+```{r wd-1-xlsx} Practice Activity 4}
 #maybe some practice activity
+library(readxl) 
+library(tidyverse)
+
+military <- read_xlsx(here::here("data", 
+                                 "gov_spending_per_capita.xlsx"), 
+                      sheet = , 
+                      skip = , 
+                      nmax = )
 ```
 
 -   `txt`
 
 ```{r wd-1-txt}
-#maybe some preview activity or practice activity
+# Practive Activty 5
+message <- read_csv(here::here("data", "scrambled_message.txt")
+                      )
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -830,7 +840,35 @@ q7_california_avocados <- city_avocados |>
 
 -   using a single function call
 
-```{r pe-1-one-call}
+```{r pe-1-one-call} Lab 4 Q7}
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 
 ```
 
@@ -851,13 +889,52 @@ hiphop_clean <- hiphop |>
 
 -   Example 1
 
-```{r pe-4-1}
-
+```{r pe-4-1} Lab 4 Q7}
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 ```
 
 -   Example 2
 
-```{r pe-4-2}
+```{r pe-4-2}  Lab 3 Q11}
+#| output: false
+twenty_younger <- hiphop_clean |>
+  filter(age < 20) |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity))
+  
+twenty_younger |>
+  slice_max(mean_fam)
+
+twenty_younger |>
+  slice_min(mean_fam)
 
 ```
 
