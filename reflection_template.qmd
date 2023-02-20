@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from a Lab or Challenge assignment where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -35,9 +35,9 @@ library(tidyverse)
 
 military <- read_xlsx(here::here("data", 
                                  "gov_spending_per_capita.xlsx"), 
-                      sheet = , 
-                      skip = , 
-                      nmax = )
+                      sheet = "Share of Govt. spending", 
+                      skip = 7, 
+                      n_max = 191)
 ```
 
 -   `txt`
@@ -940,12 +940,18 @@ twenty_younger |>
 
 ## Revising My Thinking
 
-<!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
+Throughout the course of this class, I have made it a priority to reflect on the feedback I receive and to incorporate that feedback into my future assignments. For example, I received a "G" grade for Lab 3, but I used that feedback to improve my work in subsequent assignments. I will also be submitting the Lab #3 revision alongside this reflection. I have made a conscious effort to pay attention to details such as ensuring my axes are in the correct units and making sure there are no warnings or messages when I load packages or create visualizations. Even though I have received an "S" for the majority of my assignments, I still try to improve on my understanding of R. For example, on lab 4, even though I got an "S" for specific problems, i went back and revised the assignment based on the feedback given.
 
 ## Extending My Thinking
 
-<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+During the initial weeks of this class, it was hard to go above and beyond, as the class only met once for the first two weeks, and it had been over a year since I last engaged in programming as part of my BUS 392 course. As a result, during the first two lab and challenge assignments, I could not devote extra time to incorporate "extras". I opted for the least "spicy" option for my challenge assignment as I did not have the bandwidth at the time to go above and beyond.
+
+However, later on, beginning in weeks #3 and #4, I made a priority to go above in my assignments. For instance, in Lab 4, I used external resources to learn how to remove the scientific notation from my axis and how to specify the levels in my factor variable in order to correct the order in my visualizations. While using these external sources to enhance my visualizations, I made sure to include proper citation of sources. I also started to document my code by inserting comments before each line of code which provides the reader insight into my thought process.
 
 ## Peer Support & Collaboration
 
-<!-- Include an image of feedback you gave that you are proud of (either in a peer review or in Discord) -->
+I feel that I have definitely satisfied the requirements for this section. I have made a strong commitment to being a supportive and collaborative group member. So far, I have attended every class and have been fully engaged in the practice activities with my assigned group. I took the initiative to create a group chat and our own discord server so that we could more easily help each other by sharing screens or uploading screenshots of our code and errors. I have also consistently responded to the requests for help from my group members. However, it has been hard for me to contribute to the STAT 331 discord, but going forward I will try to make it a priority.
+
+I take great pride in my peer-code reviews, as I believe they are an important aspect of the learning process. I make it a priority to provide comprehensive and respectful feedback, making sure to elaborate on both the strengths and areas for improvement in each person's code. I always make sure to reference the style guidelines, and in my last peer-review, I was impressed by the thorough documentation of the code I reviewed, which included comments for each section. In the future, I plan to document my own code in a similar manner to facilitate the peer-review process and to promote clear and concise communication.
+
+![](images/image-1301924154.png){width="247"}
