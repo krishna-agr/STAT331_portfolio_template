@@ -1,0 +1,336 @@
+---
+title: "Lab Week 4"
+author: "Krishna Agrawal"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+# REVISIONS
+
+## I received a "G" on Q5
+
+-   Explanation above Q5
+
+## I revised my code to make it more "tidy" based on the peer review comments
+
+-   Originally thought that for dplyr you needed a new function for every action. So if you needed to perform two actions under mutate you would need to call it twice and separate it with a pipe operator. However, I realized that you can perform multiple actions under mutate and there is no need to call it twice
+
+## I created a new dot plot instead of a bar chart for Q6
+
+# Set-Up
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(here)
+
+
+```
+
+# Data
+
+```{r}
+#|message: false
+avocados <- read.csv(here("Week#4", "Lab 4", "avocado.csv"))
+```
+
+## Q1) Description
+
+The data set contains data of weekly retail sales for Hass avocados in 2018. The data was obtained from the Hass Avocado Board and was collected directly from retailers' cash registers. The data set contains the average price per avocado, the tpye (conventional or organic), the year, the region or location of the observation, the total volume and numbers of avocados sold with different PLU codes (4046, 4225, 4770). PLU 4046 stands for small avocados, PLUS 4225 stands for large avocados, and PLU 4770 stands for extra large avocados.
+
+## Q2) Cleaning
+
+I decided to divide the original data set into three separate data set based on the type of region.
+
+1\) Major Regions
+
+2\) States
+
+3\) Metropolitan Regions
+
+While it may not be useful in this particular lab assignment, the other data sets could be helpful if we wanted to conduct further analysis.
+
+```{r}
+#| output: false
+# Changed the original dataset to rename all PLU columns and convert the region variable to a factor
+avocados <- avocados |>
+  mutate( region =  as.factor(region)) |>
+  rename(SmallAvocados = X4046,
+         LargeAvocados = X4225,
+         XLargeAvocados = X4770)
+
+
+# I wanted to see all the unquie regions in the dataset. From here I can easily see what cities, states, and major regions are contained in the dataset
+avocados |>
+  distinct(region)
+  
+
+# I Created a Dataframe with the names of all the major regions
+major_region_df <- data.frame(major_region = c('GreatLakes', 
+                                               'SouthCentral', 
+                                               'Southeast', 
+                                               'West', 
+                                               'Midsouth', 
+                                               'Northeast', 
+                                               'Plains', 
+                                               'NorthernNewEngland'))
+
+
+# I created a Dataframe of state names - I believe that NewYork in the dataset is a City based on the total volume reported
+state_df <- data.frame(state = c("California", 
+                                 "SouthCarolina"))
+
+```
+
+```{r}
+# Create a new data set that contains information for only the metro regions
+city_avocados <- avocados |>
+  # Filtered out all information on the major regions
+  anti_join(y = major_region_df,
+            by = c('region' = 'major_region')) |>
+  # Filtered out all information on states
+  anti_join(y = state_df,
+            by = c('region' = 'state')) |>
+  # Filtered out all information for the "TotalUS" region.
+  filter(region != "TotalUS")
+
+# Created a new data set that contains information for only the major regions
+region_avocado <- avocados |>
+  inner_join(major_region_df,
+             by = c('region' = 'major_region'))
+```
+
+## Q3
+
+```{r}
+# Use the dataset that contains the information on the major regions
+region_avocado |>
+  # Select observations that occur in 2017 and are organic
+  filter(year == 2017 & type == "organic") |>
+  # Select only the SmallAvocados and region coloumn
+  select(SmallAvocados, region) |>
+  group_by(region) |>
+  # Calculate the sum of all small avocado sales based on each region
+  summarise(totalSold = sum(SmallAvocados)) |>
+  # Obtain the value with the highest number of organic small avocados sold
+  slice_max(totalSold)
+  
+```
+
+In 2017, the West was the major region which sold the most organic small avocados.
+
+## Q4
+
+```{r}
+city_avocados |>
+  # Seperate the date column using "-"
+  separate(col = Date,
+           into = c("Year", "Month", "Day"),
+           sep = '-') |>
+  group_by(Month) |>
+  # Calculate the total number of avocados sold by each month
+  summarise(sales_by_month = sum(Total.Volume)) |>
+  # Obtain the month with the highest value of avocado sold 
+  slice_max(sales_by_month)
+```
+
+February was the month with the highest volume of avocado sales
+
+## Q5 - REVISED (slice_max)
+
+In order to get the top 5 observations with the highest total_sales, I previously used arrange() to order the observations in descending order. I then used head(5) to get the first five observations. I had thought that the slice_max() function could only extract the max value of a particular variable. However, when I looked at the arguments that slice_max() takes, I saw that you can specify "n" which will select the number of observations you want slice_max to return. I knew to look there as Dr. Theobold commented, "Is there a tool that allows you to combine your two step (arrange + head) process into \*\*one\*\* step?". I knew that slice_max returns the largest observation and then went to look at the help document for it to see if there was an argument to specify the number of max observations.
+
+```{r}
+#| warning : false
+options(scipen = 999)
+# I got this code from this website : https://rpubs.com/techanswers88/remove-scientific-notation-in-ggplot#:~:text=Option(scipen%20%3D%20999)%20is,in%20your%20numbers%20and%20charts.
+#I wanted to remove the scientific notation on my y axis
+
+
+# Create a new data set that contains only the top five regions with the highest mean avocados sold
+five_regions <- city_avocados |>
+  group_by(region) |>
+  # Calculate the mean amount of avocados sold by each region
+  summarise(total_sales = mean(Total.Volume)) |>
+  # Obtain 5 observations with highest total sales
+  slice_max(total_sales,
+            n = 5)
+  
+#PREVIOUS CODE  
+  ## Arrange rows in descending order of mean avocados sold
+  #arrange(desc(total_sales))|>
+  ## Select the first 5 observations
+  #head(5)
+
+
+
+
+
+# Filtered the dataset to only contain observations of the top five regions
+averages_five <- city_avocados |>
+  inner_join(five_regions,
+             by = 'region')
+
+# Create a Boxplot 
+ggplot(data = averages_five) +
+         geom_boxplot(mapping = aes(y = region,
+                                    x = Total.Volume)) +
+         # Used this to make sure numbers on y axis showed up (Total.Volumne is a continuous var)
+         scale_x_continuous(limits = c(0,6000001)) +
+         #Specify the title and axis labels
+         labs(title = "Region vs Total Number of Avocdos Sold",
+              y = "Region",
+              x = "Number of Avocados Sold")
+          
+  
+# i learned the scale_x_continuous() function from https://ggplot2.tidyverse.org/reference/lims.html. All following uses and variations are derived from this link  
+  
+  
+```
+
+## Q6 - REVISED (NEW PLOT + slice_max)
+
+```{r}
+#| message: false
+#Created a dataframe to contain the names of the 4 regions in CA
+cali_avocados <- data.frame(cali_region = c('LosAngeles', 
+                                            'SanDiego', 
+                                            'Sacramento', 
+                                            'SanFrancisco'))
+
+# Create a new data set that only contains information on the 4 cities within CA
+# Data set will be used in visualization
+california_avocados <- city_avocados |>
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select relavent variables
+  select(AveragePrice,
+         type,
+         region) |>
+  group_by(region, type) |>
+  # Calculate the mean price for every region and type of avocado combination
+  summarise(mean_price = mean(AveragePrice))
+   
+# Created a new dataframe to hold only the price differences between types of avocado
+# data set will be used in visualization
+mean_difference <- california_avocados |>
+  pivot_wider(names_from = type,
+              values_from = mean_price) |>
+  mutate(difference = abs(conventional - organic))
+
+# Output observation of greatest difference in price
+
+slice_max(.data = mean_difference,
+          order_by = difference)
+  
+# OLD CODE
+#  arrange(desc(mean_difference)) |>
+#  head(1)
+  
+
+# Visualize each region and their respectie price for organic and conventional avocados
+ggplot(data = california_avocados, 
+       mapping = aes(x = type, 
+                     y = mean_price, 
+                     fill = type)) +
+  geom_bar(stat = "identity",
+           show.legend = FALSE) +
+  facet_wrap(~ region, nrow = 1) +
+  labs(title = "Difference in Price between Organic and Convential Avocados by Region",
+       x = 'Type of Avocado',
+       y = 'Mean Price of Avocado ($)') 
+
+# Plot the difference in price betweeen type of avocado for each region
+ggplot(data = mean_difference, 
+       mapping = aes(x = region, 
+                     y = difference, 
+                     fill = region))+
+  geom_bar(stat = "identity",
+           show.legend = FALSE) +
+  labs(title = "Difference in mean price of 'type' of Avocados between Regions",
+       x = 'Region',
+       y = "Difference in mean price ($)")
+  
+ggplot(data = california_avocados, 
+       mapping = aes(x = mean_price, 
+                     y = region)) +
+  geom_line(mapping = aes(group = region)) +
+  geom_point(stat = "identity",
+             mapping = aes(color = type)) +
+  labs(title = "Mean Price between Organic and Convential Avocados by Region",
+       y = '',
+       x = 'Mean Price of Avocado ($)') 
+```
+
+San Francisco had the greatest price difference between organic and conventional avocados
+
+## Q7
+
+```{r}
+#| message: false
+# Create a new data set for Q7
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
+
+# Create a column chart
+ggplot(data = q7_california_avocados, 
+       mapping = aes(x = region, 
+                     y = percent_sold, 
+                     fill = Avocado_Size))+
+  geom_col(position = "fill") +
+  facet_wrap(~type) +
+  # Use dodge function to offset the x axis labels
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  # Specify the legend title and labels and change the colors of the graph 
+  scale_fill_manual(values = c("#A6CEE3", 
+                               "#1F78B4", 
+                               "#B2DF8A"),
+                    name = "Avocado Size",
+                    labels = c("Small", 
+                               "Large", 
+                               "Extra-Large")) +
+  # Specify the Axis Labels
+  labs(x = 'Region of CA',
+       y = "Proporation of Mean Avocados Sold")
+
+# I found out how to set levels from the following website: https://www.statology.org/ggplot-reorder-stacked-bars/
+
+#https://r-graphics.org/recipe-legend-label-text
+
+#https://datavizpyr.com/how-to-dodge-overlapping-text-on-x-axis-labels-in-ggplot2/
+# I tried to add different colors to my graph but I kept on gettign an Error
+  
+```

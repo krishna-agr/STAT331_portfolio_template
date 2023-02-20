@@ -1,0 +1,160 @@
+---
+title: "Challenge Week #4"
+author: "Krishna Agrawal"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+# Set-Up
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(here)
+
+
+```
+
+# Data
+
+```{r}
+#|message: false
+#|warning: FALSE
+# This code is copied from the lab
+avocados <- read.csv(here("Week#4", "Lab 4", "avocado.csv"))
+avocados <- avocados |>
+  mutate( region =  as.factor(region)) |>
+  rename(SmallAvocados = X4046,
+         LargeAvocados = X4225,
+         XLargeAvocados = X4770)
+
+
+major_region_df <- data.frame(major_region = c('GreatLakes', 
+                                               'SouthCentral', 
+                                               'Southeast', 
+                                               'West', 
+                                               'Midsouth', 
+                                               'Northeast', 
+                                               'Plains', 
+                                               'NorthernNewEngland'))
+
+
+state_df <- data.frame(state = c("California", 
+                                 "SouthCarolina"))
+
+city_avocados <- avocados |>
+  anti_join(y = major_region_df, by = c('region' = 'major_region')) |>
+  anti_join(y = state_df, by = c('region' = 'state')) |>
+  filter(region != "TotalUS")
+
+
+region_avocado <- avocados |>
+  inner_join(major_region_df, by = c('region' = 'major_region'))
+
+cali_avocados <- data.frame(cali_region = c('LosAngeles', 
+                                            'SanDiego', 
+                                            'Sacramento', 
+                                            'SanFrancisco'))
+
+
+# Created Dataset to get the mean price of avocados for each region and year combination
+california_avocados <- city_avocados |>
+  inner_join(cali_avocados, by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  group_by(region, year) |>
+  summarise(avg_price = mean(AveragePrice))
+
+```
+
+## Viewing Data
+
+```{r}
+#| message: false
+#| output: false
+# We have years from 2015 to 2018 and need median housing pricing from 2015 to 2018
+"
+LA 
+  2015 - 502750	
+  2016 - 522520
+  2017 - 577690
+  2018 - 588140
+  
+San Diego
+  2015 - 530000
+  2016 - 568000
+  2017 - 605000
+  2018 - 618500
+
+"
+#https://www.laalmanac.com/economy/ec37.php
+  
+"
+San Fransisco 
+  2015 - 729690
+  2016 - 775820
+  2017 - 882000
+  2018 - 905000
+"
+#https://www.car.org/marketdata/data/housingdata
+"
+Sacramento 
+  2015 -247575
+  2016 - 286167
+  2017 - 314776
+  2018 - 332451
+"
+#https://www.zillow.com/home-values/20288/sacramento-ca/
+
+# Create vectors with median housing pricing
+
+la_data <- c(502750, 522520, 577690, 588140)
+sd_data <- c(530000, 568000, 605000, 618500)
+sf_data <- c(729690, 775820, 882000, 905000)
+sac_data <- c(247575, 286167, 314776, 332451)
+year <- c(2015, 2016, 2017, 2018)
+
+# Create data set with median housing prices
+med_housing_price <- data.frame(Year = year,
+                                LosAngeles = la_data,
+                                SanDiego = sd_data,
+                                SanFrancisco = sf_data,
+                                Sacramento = sac_data)
+
+med_housing_price <- med_housing_price |>
+  pivot_longer(cols = c('LosAngeles',"SanDiego", "SanFrancisco", "Sacramento"),
+              names_to = "city",
+              values_to = 'price')
+```
+
+```{r}
+# Joining the two datasets by year and region
+
+california_avocados <- california_avocados |>
+  left_join(y = med_housing_price, by = c('region' = 'city', 'year' = "Year")) |>
+  mutate(year = as.character(year),
+         year = as.factor(year))
+
+
+
+
+```
+
+```{}
+```
+
+```{r}
+
+ggplot(data = california_avocados) +
+  geom_point( mapping = aes(x = price, y = avg_price, color = year)) +
+  facet_wrap(~region) +
+  labs(y = "Avg Avocado Price", x = "Median House Price")
+
+```
+
+From the visualizations above it seems as if there is no true relationship between the median price of homes and the average price of Hass Avocados. There is no linear or exponential relationship between housing prices and avocado prices. For example, throughout every region, we had an increase in home prices in 2018 but a drastic decrease in avocado prices. These two prices could be tied together as avocado prices could increase with the cost of living. We also have limited data in this analysis but from this we can say that buying avocado is probably not keeping you from buying a home.

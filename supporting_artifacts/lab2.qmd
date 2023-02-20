@@ -1,0 +1,171 @@
+---
+title: "Lab 2"
+author: "Krishna Agrawal"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+# Set-up
+
+```{r setup}
+library(tidyverse)
+library(here)
+```
+
+# Data Context
+
+| Column          | Description                        |
+|-----------------|------------------------------------|
+| record_id       | Unique id for the observation      |
+| month           | month of observation               |
+| day             | day of observation                 |
+| year            | year of observation                |
+| plot_id         | ID of a particular plot            |
+| species_id      | 2-letter code                      |
+| sex             | sex of animal ("M", "F")           |
+| hindfoot_length | length of the hindfoot in mm       |
+| weight          | weight of the animal in grams      |
+| genus           | genus of animal                    |
+| species         | species of animal                  |
+| taxon           | e.g. Rodent, Reptile, Bird, Rabbit |
+| plot_type       | type of plot                       |
+
+# Reading the Data into R
+
+### **Question 1**
+
+```{r data}
+# Code for question 1! 
+surveys <- read_csv(here("Week#2", "Lab_Week_2", "surveys.csv"))
+```
+
+## Inspecting the Data
+
+```{r inspect-data}
+# Code for questions 2 & 3!
+dim(surveys)
+str(surveys)
+```
+
+### **Question 2**
+
+What are the dimensions of these data?
+
+15 columns and 30,463 rows
+
+### **Question 3**
+
+What are the data types of the variables in the dataset?
+
+     $ record_id      : num 
+     $ month          : num 
+     $ day            : num 
+     $ year           : num 
+     $ plot_id        : num 
+     $ species_id     : chr 
+     $ sex            : chr 
+     $ hindfoot_length: num 
+     $ weight         : num 
+     $ date           : Date
+     $ day_of_week    : chr 
+     $ plot_type      : chr 
+     $ genus          : chr 
+     $ species        : chr 
+     $ taxa           : chr 
+
+## Scatterplot
+
+### **Question 4**
+
+```{r scatterplot}
+# Code for question 4! 
+ggplot(data = surveys, mapping = aes(x = weight , y = hindfoot_length)) +  
+   geom_point()
+
+```
+
+### **Question 5**
+
+```{r alpha}
+#Code for question 5!
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +  
+   geom_point(alpha=.3)
+```
+
+### **Question 6**
+
+```{r jitter}
+# Code for question 6! 
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +  
+   geom_jitter(alpha=.3)
+```
+
+## Faceting
+
+### **Question 7**
+
+```{r facet}
+# Code for question 7
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +  
+   geom_jitter(alpha=.3) +
+   facet_wrap(~ species)
+```
+
+# Boxplots & Density Ridges
+
+### **Question 8, 9, 10, 11, 12**
+
+```{r boxplot-jitter-points}
+# Code for question 8 (and 9 and 10 and 11 and 12)! :) 
+#8
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +  
+   geom_boxplot() 
+#9
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +  
+   geom_boxplot() +
+   geom_point() 
+#10
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +  
+   geom_boxplot() +
+   geom_jitter() 
+#11
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +  
+   geom_boxplot() +
+   geom_jitter(color = "darkseagreen")
+#12
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +  
+   geom_boxplot(outlier.shape = NA) +
+   geom_jitter(color = "darkseagreen")
+```
+
+# Customization
+
+### **Question 13**
+
+```{r}
+# Code for question 13! 
+ggplot(data = surveys, mapping = aes(x = species, y = weight)) +
+   geom_boxplot(outlier.shape = NA) +
+   geom_jitter(color = "darkseagreen") +
+   labs(x = "Species of Animal",
+        y = "Weight (grams)", 
+        title = "Weight in grams vs Species of Animal")
+```
+
+### **Question 14**
+
+```{r}
+# Code for question 14!
+ggplot(data = surveys, mapping = aes(y = species, x = weight)) +
+   geom_boxplot(outlier.shape = NA) +
+   geom_jitter(color = "darkseagreen") +
+   labs(y = "Species of Animal",
+        x = "Weight (grams)", 
+        title = "Species of Animal vs Weight in grams")
+```

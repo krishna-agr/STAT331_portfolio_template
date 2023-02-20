@@ -1,0 +1,298 @@
+---
+title: "Lab #3 Revisions"
+author: "Krishna"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+# Set-Up
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(here)
+```
+
+# Data
+
+```{r}
+#| message: false
+hiphop <- read_csv(here("Week #3", "Lab#3", "hiphop.csv"))
+```
+
+## Overview
+
+This data set contains responses from 168 participants on their familiarity with 64 AAE vocabulary items. The data set also contains different attributes about the participants such as their race, sex, and age. This data set is comprised of 10,752 rows and 38 columns.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+# REVISION 1 of 2
+
+In my original response, I did not give enough context or information on the primary variable of interest which is "familiarity". I provided information on other areas of the data set and study rather than the main variable.
+
+Improved Answer:
+
+This data set contains responses from 168 participants on their familiarity with 64 AAE vocabulary items. The data set also contains different attributes about the participants such as their race, sex, and age. This data set is comprised of 10,752 rows and 38 columns. The variable "familiarity" contains the score given to each participant based on their knowledge of a particular vocabulary term. Familiarity is a Likert scale from 1 to 5 with a score of 1 meaning the participant has zero knowledge of the AAE vocab term and a 5 representing that the participant knows the AAE term very well.
+
+Going forward, when describing data sets, I should pay more attention to the primary variable of interest and elaborate on how that variable is measured especially if it is coded, ie. a Likert scale
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+Each row of this data set represents a specific participant's familiarity with a specific AAE vocabulary item. There are 168 participants and 64 vocabulary terms which results in 10,752 rows.
+
+## Data Cleaning
+
+4\) According to the document, missing values were replaced by the mean value of those variables. A problem with this method is that, if there is a large number of null values that the mean value is applied to, it will distort the relationships between variables and will make the subsequent analysis unreliable.
+
+A benefit of this method is that it allows us to keep these observations instead of completely discarding entire the observation. The method of replacing null values with mean values will be greatly beneficial if the data set does not contain a large number of null values.
+
+```{r}
+# Changing Characters to Factors
+hiphop_clean <- hiphop |>
+  mutate(across(c(word,
+                  sex,
+                  ethnic,
+                  familiarity),
+                  as.factor
+                ))
+
+```
+
+I did not remove observations that had values of "0" for the variables: "city", "county", and "countyBlack". For our assignment, we did not have to compute values or perform analysis with those variables. There was no compelling reason in my opinion to remove those participants from our data set. The data set description did not provide the reason for the "0" values. It could have been the case that the participant did not provide their hometown. In conclusion, our analysis did not involve those particular variables and there was no strong motivation or reason to remove those observations.
+
+# Data Summaries
+
+## Unique AAE Words
+
+```{r}
+#| output: false
+hiphop_clean |>
+  distinct(word) |>
+  count()
+```
+
+We have 64 unique AAE Words
+
+## Simplifying the "ethnic" column
+
+```{r}
+hiphop_clean <- hiphop_clean |>
+  mutate(simplify_ethnic = if_else(ethnic == "white",
+                                  true = "white",
+                                  false = "other"))
+```
+
+### Drawbacks
+
+We created a new variable to simplify the "ethnic" variable. There are a number of concerns involved when collapsing ethnic or racial columns. First, we may lose important information about the subgroups in the "other" category. We essentially hide the potential differences between the collapsed groups. Ethically, collapsing racial categories can lead to bias as one could easily assume that all individuals in the collapsed category are alike. Lastly, based on a quick internet search, collapsing categories can make it hard to compare your results with a similar study that uses different categorization.
+
+## Demographics
+
+```{r}
+#| output: false
+# I would like to find a way to condense this code. Not sure how to do that
+summary_hiphop <- hiphop_clean |>
+  distinct(subj, .keep_all = TRUE)
+  
+summary_hiphop|>
+  summarize(sumstat_age = summary(age))
+  
+summary_hiphop |>
+  count(sex, simplify_ethnic, sort = TRUE)
+  
+summary_hiphop |>
+  count(simplify_ethnic, sort = TRUE)
+                  
+
+
+
+
+ 
+```
+
+The participants' ages range from 16 to 48 years old with the average age being around 20 years. The median participant age was 19 years old. In total there were 117 female and 51 male participants. 135 of the 168 participants had a European-American ethnicity which is an overwhelming majority.
+
+## Plots
+
+```{r}
+ggplot(data = summary_hiphop, mapping = aes(x = age,
+                                            y = sex)) +
+  geom_boxplot() +
+  geom_jitter(alpha = .2, 
+              mapping = aes(color = sex), 
+              show.legend = FALSE) +
+  labs(y = "Participant Sex",
+       x = "Participant Age", 
+       title = "Distribution of Participant Age")
+  
+
+ggplot(data = summary_hiphop,
+       mapping = aes(x = sex)) +
+  geom_bar(mapping = aes(fill = simplify_ethnic),
+           position = 'dodge') +
+  labs(x = "Participant Sex",
+       y = "Count",
+       title = "Gender and Ethnicity of Participants",
+       fill = "Ethnicity", 
+       labels = c("Other", "European-American"))
+       
+ggplot(data = summary_hiphop,
+       mapping = aes(x = age)) +
+  geom_histogram(mapping = aes(fill = sex),
+                 binwidth = 2) +
+  labs(x = "Age",
+       y = "Count",
+       title = "Distribution of Participants Age",
+       fill = "Sex", 
+       labels = c("Other", "European-American"))
+
+
+
+```
+
+This boxplot shows the distribution of the participant's age between the two genders. The overlay helps us visualize that the majority of the participants were around the age of 19
+
+This bar chart helps us visualize the participant's ethnicity and genders. We can see that participants were largely of European-American ethnicity and the majority of the participants were females
+
+The histogram shows the distribution of participants' age. It also allows us to visualize the sex of the participants at different ages.
+
+# Familiar Words
+
+### Twenty and Younger
+
+```{r}
+#| output: false
+twenty_younger <- hiphop_clean |>
+  filter(age < 20) |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity))
+  
+twenty_younger |>
+  slice_max(mean_fam)
+
+twenty_younger |>
+  slice_min(mean_fam)
+```
+
+20 Years and Younger
+
+-   Most Popular:
+
+    -   "off the hook"
+
+-   Least Popular:
+
+    -   "catch the vapors"
+
+### Non-White Females
+
+```{r}
+#| output: false
+other_women <- hiphop_clean |>
+  filter(simplify_ethnic != "white" & sex == "Female") |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity)) 
+
+other_women |>
+  slice_max(mean_fam)
+
+other_women |>
+  slice_min(mean_fam)
+```
+
+Non-White Females
+
+-   Most Popular:
+
+    -   feel me
+
+-   Least Popular:
+
+    -   break someone out
+
+    -   dukey rope
+
+    -   plex
+
+    -   rollie
+
+### White Males over 30yrs old
+
+```{r}
+#| output: false
+
+thirty_men <- hiphop_clean |>
+  filter(simplify_ethnic == "white" & sex == "Male" & age > 30) |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity)) 
+
+thirty_men |>
+  slice_max(mean_fam)
+
+thirty_men |>
+  slice_min(mean_fam)
+  
+
+```
+
+White Males over 30
+
+-   Most Popular:
+
+    -   5-0
+
+-   Least Popular:
+
+    -   ay yo trip
+
+    -   beexy
+
+    -   break someone out
+
+    -   catch the vapors
+
+    -   crossroads
+
+    -   crimp
+
+    -   dap
+
+    -   dollar cab
+
+    -   domino
+
+    -   duckets
+
+# Justin Bieber
+
+```{r}
+#| output: false
+summary_hiphop |>
+  filter(  bieber > 4 & ethnic == "white" & sex == "Male" & city <60000 ) 
+
+```
+
+Subject p17 is most likely Justin Bieber. It is a fact that Justin is a male and has the ethnicity of "white". We also know that his hometown has a population of less than 60,000 people. I also added a condition to filter people who know at least 3 Justin Bieber songs. Justin Bieber definitely knows his own songs so he should have a perfect score. However, the only people who scored a perfect score for naming Justin Bieber songs were females. The participant that fits the most criteria is p17.
+
+# ***REVISION 2 of 2***
+
+While I did not get Q14 wrong, my method was not efficient. When answering this question the first time around, it required some trial and error as there was no male that scored a 100% on naming Bieber songs. So I first tried filtering based on a score of 6 and then 5 and then 4. This is inefficient and there is a better method to obtain the correct answer.
+
+```{r}
+summary_hiphop |>
+  filter(ethnic == "white" & 
+         sex == "Male" & 
+         city <60000 ) |>
+  slice_max(bieber)
+```
+
+In my revised answer, I filter based on the demographics associated with Justin Bieber such as his ethnicity, his sex, and his hometown population. Then out of those observations, I can choose the subject that got the highest score on naming Justin Bieber songs by utilizing the slice_max() function. I figured this out based on the comment Dr. Theobold left on my lab submission, "how could you write code to find the **maximum of that variable** and the subject associated with it?" Looking back on the coursework, I remembered that we learned the slice_max() function which returns the observation/row with the highest value of the specified column/variable.

@@ -1,0 +1,185 @@
+---
+title: "Lab 5"
+author: "Krishna Agrawal"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(here)
+library(lubridate)
+
+```
+
+```{r data}
+#| message: false
+# Code for question 1! 
+surveys <- read_csv(here("Week#2", "Lab_Week_2", "surveys.csv"))
+```
+
+## 1) Revisiting Lab #2
+
+### 
+
+**1. Reorder the species so the boxplots for weights go in descending order (largest to smallest).**
+
+```{r}
+ggplot(data = surveys, 
+       mapping = aes(y = fct_reorder(species,weight), 
+                     x = weight)) +
+   geom_jitter(color = "darkseagreen",
+               alpha = .1) +
+   geom_boxplot(outlier.shape = NA) +
+   labs(y = "Species of Animal",
+        x = "Weight (grams)", 
+        title = "Species of Animal vs Weight in grams")
+```
+
+**2. Now that you've reordered, look at your y-axis label. That's long! Let's take Will Chase's advice and move the y-axis label to the top of the plot.**
+
+```{r}
+ggplot(data = surveys, 
+       mapping = aes(y = fct_reorder(species,weight), 
+                     x = weight)) +
+   geom_jitter(color = "darkseagreen",
+               alpha = .1) +
+   geom_boxplot(outlier.shape = NA) +
+   labs(y = '',
+        x = "Weight (grams)", 
+        title = "Species of Animal vs Weight in grams") +
+   theme(plot.title.position = 'plot')
+```
+
+## **2 Time-Series Plot**
+
+**1. Create a visualization how weights vary for each genus over the duration of the study.**
+
+```{r}
+#| warning: false
+date_survey <- surveys |>
+  mutate(date = ymd(date))
+
+
+ggplot(data = date_survey, 
+       mapping = aes(y = weight, 
+                     x = date,
+                     color = genus)) +
+  geom_line() +
+  labs(y = '',
+        x = "Time", 
+        title = "Weight (grams) over Time by Genus") +
+   theme(plot.title.position = 'plot')
+```
+
+**2. Calculate and plot the [mean]{.underline} weight for each genus for each year.**
+
+This should look much less busy! However, you should notice that the legend still goes in alphabetical order.
+
+```{r}
+#| warning: false
+#| message: false
+mean_weight_survey <- date_survey |>
+  mutate(year = year(date)) |>
+  group_by(genus, year) |>
+  summarise(mean_weight = mean(weight))
+
+ggplot(data = mean_weight_survey, 
+       mapping = aes(y = mean_weight, 
+                     x = year,
+                     color = genus)) +
+  geom_line() +
+  labs(y = '',
+        x = "Time", 
+        title = "Mean Weight (grams) over Time by Genus") +
+   theme(plot.title.position = 'plot')
+```
+
+**3 & 4 Reorder the lines so the mean weights go in descending order (largest to smallest).**
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(data = mean_weight_survey, 
+       mapping = aes(y = mean_weight, 
+                     x = year,
+                     color = fct_reorder2(.f = genus,
+                                          .y = mean_weight,
+                                          .x = year))) +
+  geom_line() +
+  labs(y = '',
+       x = "Time", 
+       title = "Mean Weight (grams) by Genus Over Time") +
+  guides(color = guide_legend(title = "Genus")) +
+  theme(plot.title.position = 'plot') 
+  
+#guides function was obtained from : https://www.geeksforgeeks.org/how-to-change-legend-title-in-ggplot2-in-r/
+```
+
+## **3 Caputures over the Week**
+
+**1 & 2) Create a visualization of the number of rodents captured each day of the week.**
+
+```{r}
+count_survey <- date_survey |>
+  drop_na(date) |>
+  mutate(day_week = wday(date,
+                        label = TRUE),
+         day_week = factor(day_week, 
+                          levels = c("Mon",
+                                     "Tue",
+                                     "Wed",
+                                     "Thu",
+                                     "Fri",
+                                     "Sat",
+                                     "Sun"))
+         ) |>
+  count(day_week)
+
+
+ggplot(data = count_survey,
+       mapping = aes(y = day_week,
+                     x = n,
+                     fill = day_week)) +
+  geom_bar(stat = "identity",
+           show.legend = FALSE) +
+  labs(y = '',
+       x = "", 
+       title = "Number of Rodents Captured by the Day of the Week") +
+  theme(plot.title.position = 'plot') 
+  
+  
+  
+
+
+```
+
+**3. Collapse Monday through Friday into a `"Weekday"` level, and collapse Saturday and Sunday into a `"Weekend"` level. Plot the number of rodents captured between the two groups.**
+
+```{r}
+collapsed_survey <- count_survey |>
+  mutate(day_week = fct_collapse(day_week,
+    Weekday = c("Mon", "Tue", "Wed", "Thu", "Fri"),
+    Weekend = c("Sat", "Sun")
+    ))
+
+ggplot(data = collapsed_survey,
+     mapping = aes(y = day_week,
+                   x = n,
+                   fill = day_week)) +
+geom_bar(stat = "identity",
+         show.legend = FALSE) +
+labs(y = '',
+     x = "", 
+     title = "Number of Rodents Captured on Weekday vs Weekend") +
+theme(plot.title.position = 'plot')
+```
+
+\

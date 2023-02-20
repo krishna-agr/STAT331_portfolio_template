@@ -558,6 +558,7 @@ twenty_younger |>
 -   Example 2
 
 ```{r r-3-2}
+# Lab 4 Q6
 #| message: false
 #Created a dataframe to contain the names of the 4 regions in CA
 cali_avocados <- data.frame(cali_region = c('LosAngeles', 
