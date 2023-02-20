@@ -192,8 +192,17 @@ q7_california_avocados <- city_avocados |>
 
 -   character -- specifically a string
 
-```{r wd-4-string}
-
+```{r wd-4-string} Lab 4 Q4}
+city_avocados |>
+  # Seperate the date column using "-"
+  separate(col = Date,
+           into = c("Year", "Month", "Day"),
+           sep = '-') |>
+  group_by(Month) |>
+  # Calculate the total number of avocados sold by each month
+  summarise(sales_by_month = sum(Total.Volume)) |>
+  # Obtain the month with the highest value of avocado sold 
+  slice_max(sales_by_month)
 ```
 
 -   factor
@@ -250,6 +259,12 @@ suspects <- suspects |>
 -   `left_join()`
 
 ```{r wd-5-left}
+#Challange 4
+
+california_avocados <- california_avocados |>
+  left_join(y = med_housing_price, by = c('region' = 'city', 'year' = "Year")) |>
+  mutate(year = as.character(year),
+         year = as.factor(year))
 
 ```
 
@@ -261,8 +276,22 @@ suspects <- suspects |>
 
 -   `inner_join()`
 
-```{r wd-5-inner}
+```{r wd-5-inner} Lab 4 Q2}
+# Create a new data set that contains information for only the metro regions
+city_avocados <- avocados |>
+  # Filtered out all information on the major regions
+  anti_join(y = major_region_df,
+            by = c('region' = 'major_region')) |>
+  # Filtered out all information on states
+  anti_join(y = state_df,
+            by = c('region' = 'state')) |>
+  # Filtered out all information for the "TotalUS" region.
+  filter(region != "TotalUS")
 
+# Created a new data set that contains information for only the major regions
+region_avocado <- avocados |>
+  inner_join(major_region_df,
+             by = c('region' = 'major_region'))
 ```
 
 -   `full_join()`
@@ -281,22 +310,91 @@ suspects <- suspects |>
 
 -   `anti_join()`
 
-```{r wd-6-anti}
+```{r wd-6-anti} Lab 4 Q2}
+# Create a new data set that contains information for only the metro regions
+city_avocados <- avocados |>
+  # Filtered out all information on the major regions
+  anti_join(y = major_region_df,
+            by = c('region' = 'major_region')) |>
+  # Filtered out all information on states
+  anti_join(y = state_df,
+            by = c('region' = 'state')) |>
+  # Filtered out all information for the "TotalUS" region.
+  filter(region != "TotalUS")
 
+# Created a new data set that contains information for only the major regions
+region_avocado <- avocados |>
+  inner_join(major_region_df,
+             by = c('region' = 'major_region'))
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
 
 -   `pivot_longer()`
 
-```{r wd-7-long}
-
+```{r wd-7-long} Lab4 Q7}
+#| message: false
+# Create a new data set for Q7
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 ```
 
 -   `pivot_wider()`
 
-```{r wd-7-wide}
+```{r wd-7-wide} Lab 4 Q6}
+#| message: false
+#Created a dataframe to contain the names of the 4 regions in CA
+cali_avocados <- data.frame(cali_region = c('LosAngeles', 
+                                            'SanDiego', 
+                                            'Sacramento', 
+                                            'SanFrancisco'))
 
+# Create a new data set that only contains information on the 4 cities within CA
+# Data set will be used in visualization
+california_avocados <- city_avocados |>
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select relavent variables
+  select(AveragePrice,
+         type,
+         region) |>
+  group_by(region, type) |>
+  # Calculate the mean price for every region and type of avocado combination
+  summarise(mean_price = mean(AveragePrice))
+   
+# Created a new dataframe to hold only the price differences between types of avocado
+# data set will be used in visualization
+mean_difference <- california_avocados |>
+  pivot_wider(names_from = type,
+              values_from = mean_price) |>
+  mutate(difference = abs(conventional - organic))
 ```
 
 ## Reproducibility
@@ -309,13 +407,122 @@ I've done this in the following provided assignments:
 
 -   Example 1
 
-```{r r-2-1}
+```{r r-2-1} Lab 4 Q7}
+# Create a new data set for Q7
+q7_california_avocados <- city_avocados |>
+  # Only select data for 4 regions in CA
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select the relevant variables
+  select(SmallAvocados, 
+         LargeAvocados, 
+         XLargeAvocados, 
+         type, 
+         region) |>
+  group_by(region, type) |>
+  # Calculate the total number sold of each type of avocado sold for each region
+  summarise(small_avocados = mean(SmallAvocados),
+            large_avocados = mean(LargeAvocados),
+            xlarge_avocados = mean(XLargeAvocados)) |>
+  pivot_longer(cols = c('small_avocados',
+                        'large_avocados',
+                        'xlarge_avocados'),
+               names_to = "Avocado_Size",
+               values_to = "quantity_sold") |>
+  # Create a new column that contains the percentage of each type of avocado sold for each region
+  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
+  # This line is set levels to the factors and specify the order in the visualization
+        (Avocado_Size = factor(Avocado_Size, 
+                               levels = c("small_avocados", 
+                                          "large_avocados", 
+                                          "xlarge_avocados"))))
 
+# Create a column chart
+ggplot(data = q7_california_avocados, 
+       mapping = aes(x = region, 
+                     y = percent_sold, 
+                     fill = Avocado_Size))+
+  geom_col(position = "fill") +
+  facet_wrap(~type) +
+  # Use dodge function to offset the x axis labels
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  # Specify the legend title and labels and change the colors of the graph 
+  scale_fill_manual(values = c("#A6CEE3", 
+                               "#1F78B4", 
+                               "#B2DF8A"),
+                    name = "Avocado Size",
+                    labels = c("Small", 
+                               "Large", 
+                               "Extra-Large")) +
+  # Specify the Axis Labels
+  labs(x = 'Region of CA',
+       y = "Proporation of Mean Avocados Sold")
 ```
 
 -   Example 2
 
-```{r r-2-2}
+```{r r-2-2} Challange 4}
+# We have years from 2015 to 2018 and need median housing pricing from 2015 to 2018
+"
+LA 
+  2015 - 502750	
+  2016 - 522520
+  2017 - 577690
+  2018 - 588140
+  
+San Diego
+  2015 - 530000
+  2016 - 568000
+  2017 - 605000
+  2018 - 618500
+
+"
+#https://www.laalmanac.com/economy/ec37.php
+  
+"
+San Fransisco 
+  2015 - 729690
+  2016 - 775820
+  2017 - 882000
+  2018 - 905000
+"
+#https://www.car.org/marketdata/data/housingdata
+"
+Sacramento 
+  2015 -247575
+  2016 - 286167
+  2017 - 314776
+  2018 - 332451
+"
+#https://www.zillow.com/home-values/20288/sacramento-ca/
+
+# Create vectors with median housing pricing
+
+la_data <- c(502750, 522520, 577690, 588140)
+sd_data <- c(530000, 568000, 605000, 618500)
+sf_data <- c(729690, 775820, 882000, 905000)
+sac_data <- c(247575, 286167, 314776, 332451)
+year <- c(2015, 2016, 2017, 2018)
+
+# Create data set with median housing prices
+med_housing_price <- data.frame(Year = year,
+                                LosAngeles = la_data,
+                                SanDiego = sd_data,
+                                SanFrancisco = sf_data,
+                                Sacramento = sac_data)
+
+med_housing_price <- med_housing_price |>
+  pivot_longer(cols = c('LosAngeles',"SanDiego", "SanFrancisco", "Sacramento"),
+              names_to = "city",
+              values_to = 'price')
+
+# Joining the two datasets by year and region
+
+california_avocados <- california_avocados |>
+  left_join(y = med_housing_price, by = c('region' = 'city', 'year' = "Year")) |>
+  mutate(year = as.character(year),
+         year = as.factor(year))
 
 ```
 
@@ -323,14 +530,57 @@ I've done this in the following provided assignments:
 
 -   Example 1
 
-```{r r-3-1}
+```{r r-3-1} Lab 3 Q11}
+#| output: false
+twenty_younger <- hiphop_clean |>
+  filter(age < 20) |>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_fam = mean(familiarity))
+  
+twenty_younger |>
+  slice_max(mean_fam)
 
+twenty_younger |>
+  slice_min(mean_fam)
 ```
 
 -   Example 2
 
 ```{r r-3-2}
+#| message: false
+#Created a dataframe to contain the names of the 4 regions in CA
+cali_avocados <- data.frame(cali_region = c('LosAngeles', 
+                                            'SanDiego', 
+                                            'Sacramento', 
+                                            'SanFrancisco'))
 
+# Create a new data set that only contains information on the 4 cities within CA
+# Data set will be used in visualization
+california_avocados <- city_avocados |>
+  inner_join(cali_avocados,
+             by = c('region' = 'cali_region')) |>
+  mutate( region =  as.factor(region)) |>
+  # Select relavent variables
+  select(AveragePrice,
+         type,
+         region) |>
+  group_by(region, type) |>
+  # Calculate the mean price for every region and type of avocado combination
+  summarise(mean_price = mean(AveragePrice))
+   
+# Created a new dataframe to hold only the price differences between types of avocado
+# data set will be used in visualization
+mean_difference <- california_avocados |>
+  pivot_wider(names_from = type,
+              values_from = mean_price) |>
+  mutate(difference = abs(conventional - organic))
+
+# Output observation of greatest difference in price
+
+slice_max(.data = mean_difference,
+          order_by = difference)
+  
 ```
 
 ## Data Visualization & Summarization
