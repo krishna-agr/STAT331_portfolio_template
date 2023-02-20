@@ -1,0 +1,133 @@
+---
+title: "PA 5.1: Regular Expressions"
+format: 
+  html: 
+    self-contained: true
+    code-tools: true
+editor: visual
+execute: 
+  echo: true
+  warning: false
+  message: false
+---
+
+## Setup
+
+The scrambled message data are located in the data folder. Modify the code below to load the scrambled message dataset :
+
+```{r package}
+library(tidyverse)
+```
+
+```{r data}
+message <- read_csv(here::here("data", "scrambled_message.txt")
+                      )
+```
+
+## Warm-up exercises
+
+1.  How many characters are in the scrambled message?
+
+[**Vector Approach:**]{.underline}
+
+```{r num-chr-vector}
+str_length(word) %>% 
+  sum()
+```
+
+[**Dataframe Approach:**]{.underline}
+
+```{r num-chr-dataframe}
+message %>% 
+  mutate(length = str_length(message$Word)) %>% 
+  summarise(total_length = sum(length))
+```
+
+2.  How many words are in the scrambled message?
+
+[**Vector Approach:**]{.underline}
+
+```{r num-words-vector}
+str_subset(word, pattern = "\\b") %>% 
+  length()
+```
+
+[**Dataframe Approach:**]{.underline}
+
+```{r num-words-dataframe}
+message %>% 
+  filter(str_detect(Word, pattern = "\\w")) %>% 
+  count() 
+```
+
+3.  Print out every piece of a word in the scrambled message that starts with the letter "m".
+
+    ```{r}
+    m_words <- message |>
+      filter(str_detect(Word, pattern = "^m"))
+    print(m_words)
+    ```
+
+4.  Print out every piece of a word in the scrambled message that ends with the letter "z"
+
+    ```{r}
+    z_words <- message |>
+      filter(str_detect(Word, pattern = "z$"))
+    print(z_words)
+    ```
+
+5.  Print out every punctuation symbol in the scrambled message.
+
+    ```{r}
+    punct_symbols <- message |>
+      mutate(punct = str_extract_all(Word, pattern = "[[:punct:]]")) |>
+      unnest(punct) |>
+      filter(nchar(punct) > 0)
+    print(punct_symbols)
+
+    message |>
+      slice_max(str_length(Word))
+    ```
+
+::: callout-tip
+# Every punctuation symbol!
+
+Careful! There could be multiple punctuation symbols in a word, so `str_extract_all()` seems like the better tool. However, the output of this funtion is a *list*. A helpful function for flattening a list to a regular column is `unnest()`!
+
+Print out the longest word in the scrambled message.
+:::
+
+## Decode a message
+
+Complete the following steps to decode the message.
+
+```{r}
+message |>
+  mutate(Word = str_trim(Word)) |>
+  mutate(Word = str_trunc(Word, 16)) |>
+  mutate(Word = str_replace_all(Word, "ugh+h[\\?]", ""),
+         Word = str_replace_all(Word, "[aa]", "ee"),
+         Word = str_replace_all(Word, "z", "t"),
+         Word = str_replace_all(Word, "$b", "y"),
+         Word = str_replace_all(Word, "^k", "v")
+         )
+  
+```
+
+1.  Remove any spaces before or after each word.
+
+2.  No word should be longer than 16 characters. Drop all extra characters off the end of each word.
+
+3.  Any time you see the word "ugh", with any number of h's, followed by a punctuation mark, delete this.
+
+4.  Replace all instances of exactly 2 a's with exactly 2 e's.
+
+5.  Replace all z's with t's.
+
+6.  Every word that ends in b, change that to a y.
+
+7.  Every word that starts with k, change that to a v.
+
+8.  Use `str_c()` to recombine all your words into a message.
+
+9.  Find the movie this quote is from.
