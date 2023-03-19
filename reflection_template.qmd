@@ -779,7 +779,15 @@ q7_california_avocados <- city_avocados |>
 
 **DVS-6: I can find summaries of variables across multiple groups.**
 
+```{r}
+
+```
+
 **DVS-7: I can find summaries of variables across multiple groups.**
+
+```{r}
+         
+```
 
 ## Program Efficiency
 
@@ -787,8 +795,18 @@ q7_california_avocados <- city_avocados |>
 
 -   using a single function call
 
-```{r pe-1-one-call}
-
+```{r pe-1-one-call} Lab 4 Q3}
+# Use the dataset that contains the information on the major regions
+region_avocado |>
+  # Select observations that occur in 2017 and are organic
+  filter(year == 2017 & type == "organic") |>
+  # Select only the SmallAvocados and region coloumn
+  select(SmallAvocados, region) |>
+  group_by(region) |>
+  # Calculate the sum of all small avocado sales based on each region
+  summarise(totalSold = sum(SmallAvocados)) |>
+  # Obtain the value with the highest number of organic small avocados sold
+  slice_max(totalSold)
 ```
 
 -   `across()`
@@ -806,14 +824,35 @@ hiphop_clean <- hiphop |>
 
 **PE-2: I can use modern tools when carrying out my analysis.**
 
+```{r}
+
+```
+
 **PE-3: I can use modern tools when carrying out my analysis.**
+
+```{r}
+
+```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
 
 -   Example 1
 
-```{r pe-4-1} Lab 4 Q7}
-
+```{r pe-4-1} Lab 9 Q3.3}
+state_name |>
+  filter(Name == "Allison") |>
+  mutate(year = as.factor(Year)) |>
+  group_by(year) |>
+  summarise(n = sum(Count)) |>
+  ggplot(mapping = aes(x = year,
+                       y = n,
+                       group = 1)) +
+  geom_line() +
+  labs(y = '',
+       x = "Year", 
+       title = 'Popularity of the Name "Allison" over Time') +
+  theme(plot.title.position = 'plot') +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))
 ```
 
 -   Example 2
