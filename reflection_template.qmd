@@ -122,25 +122,12 @@ suspects <- suspects |>
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
 -   numeric
+    -   REVISION - Changed inner_join to semi_join
 
-```{r wd-4-numeric}
-# Lab 3 Q11
-twenty_younger <- hiphop_clean |>
-  filter(age < 20) |>
-  mutate(familiarity = as.numeric(familiarity)) |>
-  group_by(word) |>
-  summarize(mean_fam = mean(familiarity))
-  
-twenty_younger |>
-  slice_max(mean_fam)
-
-twenty_younger |>
-  slice_min(mean_fam)
-
-# Lab 4 Q7 
+```{r wd-4-numeric} Lab 4 Q7}
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select the relevant variables
@@ -170,17 +157,12 @@ q7_california_avocados <- city_avocados |>
 
 -   character -- specifically a string
 
-```{r wd-4-string} Lab 4 Q4}
-city_avocados |>
-  # Seperate the date column using "-"
-  separate(col = Date,
-           into = c("Year", "Month", "Day"),
-           sep = '-') |>
-  group_by(Month) |>
-  # Calculate the total number of avocados sold by each month
-  summarise(sales_by_month = sum(Total.Volume)) |>
-  # Obtain the month with the highest value of avocado sold 
-  slice_max(sales_by_month)
+```{r wd-4-string} Practice Activity 5}
+punct_symbols <- message |>
+  mutate(punct = str_extract_all(Word, pattern = "[[:punct:]]")) |>
+  unnest(punct) |>
+  filter(nchar(punct) > 0)
+print(punct_symbols)
 ```
 
 -   factor
@@ -198,8 +180,7 @@ hiphop_clean <- hiphop |>
 
 -   date
 
-```{r wd-4-date}
-# Practice Activity #5
+```{r wd-4-date} Practice Activity #5.1}
 suspects <- read_csv(here::here("data",
                                 "suspect_times.csv")
                      )
@@ -216,20 +197,6 @@ Thanksgiving <- ymd(20181122, tz = "America/Los_Angeles")
 
 timeframe <- (Thanksgiving - days(35)) %--% (Thanksgiving + days(35))
 
-suspects <- suspects |>
-  filter(Time.Spotted %within% timeframe)
-
-Iceland <- with_tz(suspects$Time.Spotted, tzone = "Iceland")
-suspects <- suspects |>
-  filter(pm(Iceland) == TRUE,
-         day(Time.Spotted) %in% c(22, 23, 24))
-
-init <- ymd_hms("1970-01-01 0:0:0", tz = "America/Los_Angeles")
-
-suspects <- suspects |>
-  mutate(time = difftime(Time.Spotted, init, units = "mins"),
-         time = as.integer(time)) |>
-  filter(time %% 10 == 0)
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -254,7 +221,21 @@ california_avocados <- california_avocados |>
 
 -   `inner_join()`
 
-```{r wd-5-inner} Lab 4 Q2}
+```{r wd-5-inner}
+```
+
+-   `full_join()`
+
+```{r wd-5-full}
+
+```
+
+**WD-6: I can use filtering joins to filter rows from a dataframe.**
+
+-   `semi_join()`
+-   REVISION - Changed inner_join() to semi_join()
+
+```{r wd-6-semi} Lab 4 Q2}
 # Create a new data set that contains information for only the metro regions
 city_avocados <- avocados |>
   # Filtered out all information on the major regions
@@ -268,21 +249,8 @@ city_avocados <- avocados |>
 
 # Created a new data set that contains information for only the major regions
 region_avocado <- avocados |>
-  inner_join(major_region_df,
+  semi_join(major_region_df,
              by = c('region' = 'major_region'))
-```
-
--   `full_join()`
-
-```{r wd-5-full}
-
-```
-
-**WD-6: I can use filtering joins to filter rows from a dataframe.**
-
--   `semi_join()`
-
-```{r wd-6-semi}
 
 ```
 
@@ -302,20 +270,21 @@ city_avocados <- avocados |>
 
 # Created a new data set that contains information for only the major regions
 region_avocado <- avocados |>
-  inner_join(major_region_df,
+  semir_join(major_region_df,
              by = c('region' = 'major_region'))
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
 
 -   `pivot_longer()`
+-   REVISION - Changed inner_join() to semi_join()
 
 ```{r wd-7-long} Lab4 Q7}
 #| message: false
 # Create a new data set for Q7
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select the relevant variables
@@ -344,6 +313,7 @@ q7_california_avocados <- city_avocados |>
 ```
 
 -   `pivot_wider()`
+-   REVISION - Changed inner_join() to semi_join()
 
 ```{r wd-7-wide} Lab 4 Q6}
 #| message: false
@@ -356,7 +326,7 @@ cali_avocados <- data.frame(cali_region = c('LosAngeles',
 # Create a new data set that only contains information on the 4 cities within CA
 # Data set will be used in visualization
 california_avocados <- city_avocados |>
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select relavent variables
@@ -389,7 +359,7 @@ I've done this in the following provided assignments:
 # Create a new data set for Q7
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select the relevant variables
@@ -525,40 +495,33 @@ twenty_younger |>
 
 -   Example 2
 
-```{r r-3-2}
-# Lab 4 Q6
-#| message: false
-#Created a dataframe to contain the names of the 4 regions in CA
-cali_avocados <- data.frame(cali_region = c('LosAngeles', 
-                                            'SanDiego', 
-                                            'Sacramento', 
-                                            'SanFrancisco'))
+```{r r-3-2} Lab 8 Step 1}
+# Function that takes a noun and makes it plural
+# Arguments -- gift -- A string or vector of strings
+# Return -- A string or vector of strings with the pluralized words
 
-# Create a new data set that only contains information on the 4 cities within CA
-# Data set will be used in visualization
-california_avocados <- city_avocados |>
-  inner_join(cali_avocados,
-             by = c('region' = 'cali_region')) |>
-  mutate( region =  as.factor(region)) |>
-  # Select relavent variables
-  select(AveragePrice,
-         type,
-         region) |>
-  group_by(region, type) |>
-  # Calculate the mean price for every region and type of avocado combination
-  summarise(mean_price = mean(AveragePrice))
-   
-# Created a new dataframe to hold only the price differences between types of avocado
-# data set will be used in visualization
-mean_difference <- california_avocados |>
-  pivot_wider(names_from = type,
-              values_from = mean_price) |>
-  mutate(difference = abs(conventional - organic))
+pluralize_gift <- function(gift){
 
-# Output observation of greatest difference in price
+  stopifnot(is.vector(gift) || is.character(gift)
+            )
+  
+  
+  gift <- 
+    case_when(
+      str_detect(string = gift, 
+                 pattern = 'oo') ~ str_replace(string = gift,
+                                               pattern = 'oo',
+                                               replacement = 'ee'),
+      str_detect(string = gift, 
+                 pattern = 'y$') ~ str_replace(string = gift,
+                                               pattern = 'y$', 
+                                               replacement = 'ies'),
+      TRUE ~ str_c(string = gift, 's', sep = '')
+  )
 
-slice_max(.data = mean_difference,
-          order_by = difference)
+return(gift)
+
+}
   
 ```
 
@@ -724,7 +687,7 @@ twenty_younger |>
 ```{r dvs-4-2} Lab 4 Q7}
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select the relevant variables
@@ -758,7 +721,7 @@ q7_california_avocados <- city_avocados |>
 
 ```{r dvs-5-1} Lab 4 Q6}
 california_avocados <- city_avocados |>
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select relavent variables
@@ -775,9 +738,9 @@ california_avocados <- city_avocados |>
 ```{r dvs-5-2} Lab 4 Q7}
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
-  mutate( region =  as.factor(region)) |>
+  mutate(region =  as.factor(region)) |>
   # Select the relevant variables
   select(SmallAvocados, 
          LargeAvocados, 
@@ -803,41 +766,17 @@ q7_california_avocados <- city_avocados |>
                                           "xlarge_avocados"))))
 ```
 
+**DVS-6: I can find summaries of variables across multiple groups.**
+
+**DVS-7: I can find summaries of variables across multiple groups.**
+
 ## Program Efficiency
 
 **PE-1: I can write concise code which does not repeat itself.**
 
 -   using a single function call
 
-```{r pe-1-one-call} Lab 4 Q7}
-q7_california_avocados <- city_avocados |>
-  # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
-             by = c('region' = 'cali_region')) |>
-  mutate( region =  as.factor(region)) |>
-  # Select the relevant variables
-  select(SmallAvocados, 
-         LargeAvocados, 
-         XLargeAvocados, 
-         type, 
-         region) |>
-  group_by(region, type) |>
-  # Calculate the total number sold of each type of avocado sold for each region
-  summarise(small_avocados = mean(SmallAvocados),
-            large_avocados = mean(LargeAvocados),
-            xlarge_avocados = mean(XLargeAvocados)) |>
-  pivot_longer(cols = c('small_avocados',
-                        'large_avocados',
-                        'xlarge_avocados'),
-               names_to = "Avocado_Size",
-               values_to = "quantity_sold") |>
-  # Create a new column that contains the percentage of each type of avocado sold for each region
-  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
-  # This line is set levels to the factors and specify the order in the visualization
-        (Avocado_Size = factor(Avocado_Size, 
-                               levels = c("small_avocados", 
-                                          "large_avocados", 
-                                          "xlarge_avocados"))))
+```{r pe-1-one-call}
 
 ```
 
@@ -854,6 +793,10 @@ hiphop_clean <- hiphop |>
                 ))
 ```
 
+**PE-2: I can use modern tools when carrying out my analysis.**
+
+**PE-3: I can use modern tools when carrying out my analysis.**
+
 **PE-4: I can use modern tools when carrying out my analysis.**
 
 -   Example 1
@@ -861,7 +804,7 @@ hiphop_clean <- hiphop |>
 ```{r pe-4-1} Lab 4 Q7}
 q7_california_avocados <- city_avocados |>
   # Only select data for 4 regions in CA
-  inner_join(cali_avocados,
+  semi_join(cali_avocados,
              by = c('region' = 'cali_region')) |>
   mutate( region =  as.factor(region)) |>
   # Select the relevant variables
