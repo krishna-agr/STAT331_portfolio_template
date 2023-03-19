@@ -31,7 +31,7 @@ surveys <- read_csv(here("Week#2", "Lab_Week_2", "surveys.csv"))
 library(readxl) 
 library(tidyverse)
 
-military <- read_xlsx(here::here("data", 
+military <- read_xlsx(here::here("data",
                                  "gov_spending_per_capita.xlsx"), 
                       sheet = "Share of Govt. spending", 
                       skip = 7, 
@@ -641,26 +641,37 @@ ggplot(data = q7_california_avocados,
 
 -   Example 1
 
-```{r dvs-3-1} Lab 4 Q6}
-ggplot(data = california_avocados, 
-       mapping = aes(x = mean_price, 
-                     y = region)) +
-  geom_line(mapping = aes(group = region)) +
-  geom_point(stat = "identity",
-             mapping = aes(color = type)) +
-  labs(title = "Mean Price between Organic and Convential Avocados by Region",
-       y = '',
-       x = 'Mean Price of Avocado ($)') 
+```{r dvs-3-1} Lab 7 Q2.2}
+ggplot(data = blackfoot_fish_na,
+       mapping = aes(x = year, 
+                     y = weight,
+                     fill = trip)) +
+  geom_col(show.legend = FALSE) +
+  facet_grid(trip ~ section) +
+  labs(y = '',
+       x = "Year", 
+       title = "Number of Missing Fish Weight Values",
+       subtitle = "Based on Blackfoot River Section and Trip Number") +
+  theme(plot.title.position = 'plot') +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_fill_brewer(palette = 'Set1') 
 ```
 
 -   Example 2
 
-```{r dvs-3-2} Challange 2}
-ggplot(data = surveys, mapping = aes(y = species, x = weight, fill = species)) +
-  geom_density_ridges(show.legend = FALSE) +
-  labs(y = "Species of Animal",
-       x = "Weight (grams)", 
-       title = "Weight in grams vs Species of Animal")   
+```{r dvs-3-2} Lab 5 Q3-4}
+ggplot(data = mean_weight_survey, 
+       mapping = aes(y = mean_weight, 
+                     x = year,
+                     color = fct_reorder2(.f = genus,
+                                          .y = mean_weight,
+                                          .x = year))) +
+  geom_line() +
+  labs(y = '',
+       x = "Time", 
+       title = "Mean Weight (grams) by Genus Over Time") +
+  guides(color = guide_legend(title = "Genus")) +
+  theme(plot.title.position = 'plot') 
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -802,34 +813,7 @@ hiphop_clean <- hiphop |>
 -   Example 1
 
 ```{r pe-4-1} Lab 4 Q7}
-q7_california_avocados <- city_avocados |>
-  # Only select data for 4 regions in CA
-  semi_join(cali_avocados,
-             by = c('region' = 'cali_region')) |>
-  mutate( region =  as.factor(region)) |>
-  # Select the relevant variables
-  select(SmallAvocados, 
-         LargeAvocados, 
-         XLargeAvocados, 
-         type, 
-         region) |>
-  group_by(region, type) |>
-  # Calculate the total number sold of each type of avocado sold for each region
-  summarise(small_avocados = mean(SmallAvocados),
-            large_avocados = mean(LargeAvocados),
-            xlarge_avocados = mean(XLargeAvocados)) |>
-  pivot_longer(cols = c('small_avocados',
-                        'large_avocados',
-                        'xlarge_avocados'),
-               names_to = "Avocado_Size",
-               values_to = "quantity_sold") |>
-  # Create a new column that contains the percentage of each type of avocado sold for each region
-  mutate(percent_sold = quantity_sold / sum(quantity_sold) *100,
-  # This line is set levels to the factors and specify the order in the visualization
-        (Avocado_Size = factor(Avocado_Size, 
-                               levels = c("small_avocados", 
-                                          "large_avocados", 
-                                          "xlarge_avocados"))))
+
 ```
 
 -   Example 2
