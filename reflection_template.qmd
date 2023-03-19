@@ -527,7 +527,7 @@ return(gift)
 
 ## Data Visualization & Summarization
 
-**of variable types (e.g., numeric, character, factor, date)**
+**\*\*DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
 
 -   numeric variables
 
@@ -777,16 +777,32 @@ q7_california_avocados <- city_avocados |>
                                           "xlarge_avocados"))))
 ```
 
-**DVS-6: I can find summaries of variables across multiple groups.**
+**DVS-6: I can create tables which make my summaries clear to the reader.**
+
+-   Example 1
+
+```{r dvs-6-1}
+
+```
+
+-   Example 2
 
 ```{r}
 
 ```
 
-**DVS-7: I can find summaries of variables across multiple groups.**
+**DVS-7: I show creativity in my tables.**
+
+-   Example 1
 
 ```{r}
          
+```
+
+-   Example 2
+
+```{r}
+
 ```
 
 ## Program Efficiency
@@ -822,13 +838,13 @@ hiphop_clean <- hiphop |>
                 ))
 ```
 
-**PE-2: I can use modern tools when carrying out my analysis.**
+**PE-2: I can write functions to reduce repetition in my code**
 
 ```{r}
 
 ```
 
-**PE-3: I can use modern tools when carrying out my analysis.**
+**PE-3: I can use iteration to reduce repetition in my code**
 
 ```{r}
 
