@@ -781,28 +781,96 @@ q7_california_avocados <- city_avocados |>
 
 -   Example 1
 
-```{r dvs-6-1}
-
+```{r dvs-6-1} Challenge 9 Q10}
+state_name |> 
+  filter(str_detect(string = Name, 
+                    pattern = 'Al(lan|an|len)$'),
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(n = sum(Count)) |>
+  group_by(State) |>
+  mutate(prop = n / sum(n)) |>
+  select(-n) |>
+  pivot_wider(names_from = Name, 
+              values_from = prop) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Alan", 
+                   "Allan",
+                   "Allen"),
+               caption = "Pectentage of variations of 'Allan' by PA and CA")|>
+  kable_material_dark(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 28)
 ```
 
 -   Example 2
 
-```{r}
+```{r dvs-6-2} Challenge 9 Q1}
+state_name <- state_name |>
+  rename("Sex" = "Gender")
 
+state_name |>
+  head(200) |>
+  datatable(class = 'hover',
+            filter = 'top', 
+            options = list(pageLength = 20))
 ```
 
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
 
-```{r}
-         
+```{r dvs-7-1} Challenge 9 Q3.1}
+state_name |>
+  filter(Name == "Allison") |>
+  pivot_wider(names_from = Sex,
+              values_from = Count,
+              values_fill = 0) |>
+  group_by(State) |>
+  summarise(across(.cols = c('F','M'),
+                   .fns = sum)) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Female", 
+                   "Male"),
+               caption = 'Number of Female and Male "Allison" based on State' )|>
+  kable_material(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 20)         
 ```
 
 -   Example 2
 
-```{r}
-
+```{r dvs-7-2} Challenge 9 Q10}
+state_name |> 
+  filter(str_detect(string = Name, 
+                    pattern = 'Al(lan|an|len)$'),
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(n = sum(Count)) |>
+  group_by(State) |>
+  mutate(prop = n / sum(n)) |>
+  select(-n) |>
+  pivot_wider(names_from = Name, 
+              values_from = prop) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Alan", 
+                   "Allan",
+                   "Allen"),
+               caption = "Pectentage of variations of 'Allan' by PA and CA")|>
+  kable_material_dark(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 28)
 ```
 
 ## Program Efficiency
@@ -838,15 +906,111 @@ hiphop_clean <- hiphop |>
                 ))
 ```
 
+-   map()
+
+```{r pe-1-map-1} Practice Activity 8}
+set.seed(1957)
+
+music_man <- function(n_tromb, n_cor, n_reed){
+  
+  trombones <- rnorm(n_tromb, mean = 4.6, sd = .8)
+  cornets <- runif(n_cor, min = 1.5, max = 3.5)
+  reeds <- rchisq(n_reed, df = 4)
+  
+  return(sum(trombones, cornets, reeds))
+  
+}
+
+my_weights <- map_dbl(.x = 1:1000, 
+                      .f = ~ music_man(n_tromb = 76, n_cor = 110, n_reed = 1035)
+) 
+
+```
+
 **PE-2: I can write functions to reduce repetition in my code**
 
-```{r}
+-   Example 1
+
+```{r pe2-1} Lab 8 Q1}
+pluralize_gift <- function(gift){
+
+  stopifnot(is.vector(gift) || is.character(gift)
+            )
+  
+  
+  gift <- 
+    case_when(
+      str_detect(string = gift, 
+                 pattern = 'oo') ~ str_replace(string = gift,
+                                               pattern = 'oo',
+                                               replacement = 'ee'),
+      str_detect(string = gift, 
+                 pattern = 'y$') ~ str_replace(string = gift,
+                                               pattern = 'y$', 
+                                               replacement = 'ies'),
+      TRUE ~ str_c(string = gift, 's', sep = '')
+  )
+
+return(gift)
+
+}
+```
+
+-   Example 2
+
+```{r pe2-1} Lab 7 Step 3.1}
+rescale_01 <- function(x) {
+  
+  stopifnot(is.numeric(x), 
+            length(x) > 1)
+  
+  min_max_val <- range(x, na.rm = TRUE)
+  
+  standardized <- ((x - min_max_val[1]) / (min_max_val[2] - min_max_val[1]))
+  
+  return(standardized)
+}
+
 
 ```
 
 **PE-3: I can use iteration to reduce repetition in my code**
 
-```{r}
+-   across()
+
+```{r pe-3-across} Lab 7, Q2.1}
+
+blackfoot_fish |>
+  summarise(across(.cols = everything(),
+                   .fns = ~ sum(is.na(.x))))
+```
+
+-   map()
+
+```{r pe-3-map-1} Practice Activity 8}
+set.seed(1957)
+
+music_man <- function(n_tromb, n_cor, n_reed){
+  
+  trombones <- rnorm(n_tromb, mean = 4.6, sd = .8)
+  cornets <- runif(n_cor, min = 1.5, max = 3.5)
+  reeds <- rchisq(n_reed, df = 4)
+  
+  return(sum(trombones, cornets, reeds))
+  
+}
+
+my_weights <- map_dbl(.x = 1:1000, 
+                      .f = ~ music_man(n_tromb = 76, n_cor = 110, n_reed = 1035)
+) 
+```
+
+```{r pe-3-map-2} Lab 8 Step 4}
+
+lyrics <- map_chr(1:12,
+        .f = ~sing_day(dataset = xmas2, line = .x, phrase_col = Full.Phrase))
+
+cat(lyrics, sep = '\n', fill = TRUE)
 
 ```
 
