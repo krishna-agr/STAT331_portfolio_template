@@ -3,3 +3,21 @@ title: "Lightening Round Essays"
 format: html
 editor: visual
 ---
+
+What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+
+-       The hardest part of this class was during week #5 when we learned about stringr, lubridate, and regular expressions as these concepts were not intuitive and we had to rely on the cheat sheets as there were many functions that required a comprehensive understanding of the concepts. Wrapping my head around dates and the regular expressions for strings was tough at first and required quite a bit more effort on my part to understand.
+
+What was the easiest part of the class for you? Explain why.
+
+-      The easiest part of the class was working with the kable and kableExtra package as I thought creating interactive tables was going to be a lot more complicated than specifying an option. Overall it was very straightforward and easy process to customize these tables
+
+What part of the class surprised or interested you the most? Explain why.
+
+-      The part that interested me the most was definitely dplyr. The structure of dplyr was very similar to SQL which made it easier for me to understand. I am taking a business analytics class concurrently with this class which also utilizes R but we are not taught dplyr and data wrangling is a lot more complex. Being able to manipulate and control data in a simple way really interested me.
+
+Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+-      One piece of advice I would give to a new student would be to start your work early and not push STAT 331 towards the weekend. The course load is quite a lot and pushing this off will make your weekend miserable. If you get stuck on Lab assignments, it will be tough for peers to help you at 10 pm on a Sunday.
+
+ 

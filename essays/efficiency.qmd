@@ -3,3 +3,13 @@ title: "The Power of Efficiency"
 format: html
 editor: visual
 ---
+
+According to the oxford dictionary, efficiency is defined as, \"achieving maximum productivity with minimum wasted effort or expense\". In terms of statistical computing, this could be thought of as having code that does not repeat itself, not having the same function called multiple times, creating a user-defined function for actions that you are repeating throughout your
+analysis, and using tools that the most updated and not superseded. Essentially, you do not want to waste your precious computer resources, especially when working with large datasets. For example, calling the mutate() function for each action
+when you only need one mutate() is not efficient as it results in a waste of computer memory. By having efficient code, it is easier for a collaborator or reader to understand your code and it allows you to work with larger datasets and perform more analysis without your computer having to work as hard. In the case of functions and map() you have to write less code making it easier on you and the reader of your code. Another instance of program efficiency is to reduce intermediate steps. For example, instead of using arrange() and then head() to obtain max or min values, one should use slice_min() and slice_max() which reduces the code one has to write and enhances the reproducibility of the code.
+
+              In Lab 3 Q11, I had to obtain two values based on a dataset that I modified. Instead of piping the slice_max() and having to perform the dataset modifications twice, I created a new object that contained the modified dataset and then obtained the max and min value. By doing this, R would not have to perform the filter() mutate() group_by() and summarize() function twice, only once.
+
+              In Lab 7 we created a user-defined function to standardize any variable. Instead of performing the calculation for each and every single variable we needed to rescale we just created a generic standardizing function. This reduced the amount of repetitive code that we would have to write.
+
+
