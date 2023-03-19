@@ -411,7 +411,7 @@ ggplot(data = q7_california_avocados,
 
 -   Example 2
 
-```{r r-2-2} Challange 4}
+```{r r-2-2} Challenge 4}
 # We have years from 2015 to 2018 and need median housing pricing from 2015 to 2018
 "
 LA 
