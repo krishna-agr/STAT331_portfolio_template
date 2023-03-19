@@ -1,0 +1,224 @@
+---
+title: "Challenge_9"
+author: "Krishna"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+## Loading Packages
+
+```{r}
+#| message: false
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(DT)
+library(gt)
+```
+
+## Loading Dataset
+
+```{r}
+#| message: false
+state_name <- read_csv(here("Week#9", "StateNames_A.csv"))
+```
+
+```{r rename gender}
+state_name <- state_name |>
+  rename("Sex" = "Gender")
+
+state_name |>
+  head(200) |>
+  datatable(class = 'hover',
+            filter = 'top', 
+            options = list(pageLength = 20))
+```
+
+## 3.1 - Summary Table
+
+```{r allison table}
+
+
+state_name |>
+  filter(Name == "Allison") |>
+  pivot_wider(names_from = Sex,
+              values_from = Count,
+              values_fill = 0) |>
+  group_by(State) |>
+  summarise(across(.cols = c('F','M'),
+                   .fns = sum)) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Female", 
+                   "Male"),
+               caption = 'Number of Female and Male "Allison" based on State' )|>
+  kable_material(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 20)
+  
+```
+
+## 3.2 Only Female
+
+```{r only female df}
+# same code as above just modifying filter
+allison_f <- state_name |>
+  filter(Name == "Allison",
+         Sex == 'F') |>
+  pivot_wider(names_from = Sex,
+              values_from = Count,
+              values_fill = 0) |>
+  group_by(State) |>
+  summarise(n = sum(F))
+```
+
+## 3.3 Visualization
+
+```{r 3.3 visulaization}
+state_name |>
+  filter(Name == "Allison") |>
+  mutate(year = as.factor(Year)) |>
+  group_by(year) |>
+  summarise(n = sum(Count)) |>
+  ggplot(mapping = aes(x = year,
+                       y = n,
+                       group = 1)) +
+  geom_line() +
+  labs(y = '',
+       x = "Year", 
+       title = 'Popularity of the Name "Allison" over Time') +
+  theme(plot.title.position = 'plot') +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))
+
+# group = 1 was obtained from https://www.statology.org/r-geom_path-each-group-consists-of-only-one-observation/
+# 
+```
+
+##  4 - Linear Model 
+
+```{r linear model}
+state_name |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(n = sum(Count)) |>
+  lm(n ~ Year, data = _)
+```
+
+Number of babies named "Allison" = 209815.1  - 101.6(Year)
+
+## Model and Residual Visualization
+
+```{r model and residual visualization}
+#| message: FALSE
+state_name |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(n = sum(Count)) |>
+  ggplot(mapping = aes(y = n,
+                       x = Year)) +
+  geom_point() +
+  stat_smooth(method = "lm") + 
+  labs(y = "Number", 
+       x = "Year")
+
+state_name |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(n = sum(Count)) |>
+  lm(n ~ Year, data = _) |>
+  broom::augment() |> 
+  ggplot(mapping = aes(y = .resid,
+                       x = .fitted)) +
+  geom_point() +
+  labs(y = "Residual", 
+       x = "Fitted Values", 
+       title = 'Residuals vs Fitted Values') +
+  theme(plot.title.position = 'plot') 
+```
+
+## 5 - Spelling by State
+
+```{r visulatization for Allen}
+#| message: false
+state_name |> 
+  filter(str_detect(string = Name, 
+                    pattern = 'Al(lan|an|len)$'),
+         Sex == 'M') |>
+  group_by(Year, Name) |>
+  summarize(n = sum(Count)) |>
+  ggplot(mapping = aes(x = Year,
+                       y = n,
+                       color = Name,
+                       ))+
+  geom_line() +
+  labs(y = '',
+       x = "Year", 
+       title = 'Popularity of the Name "Allan", "Alan", and "Allen" over Time') +
+  theme(plot.title.position = 'plot') 
+```
+
+## Pennsylvania
+
+```{r PA and CA}
+#| message: false
+state_name |> 
+  filter(str_detect(string = Name, 
+                    pattern = 'Al(lan|an|len)$'),
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(n = sum(Count)) |>
+  pivot_wider(names_from = Name, 
+              values_from = n,
+              values_fill = 0) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Alan", 
+                   "Allan",
+                   "Allen"),
+               caption = "Number of variations of 'Allan' between PA and CA")|>
+  kable_material_dark(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 28)
+```
+
+## Percentage
+
+```{r percentage table}
+#| message: false
+state_name |> 
+  filter(str_detect(string = Name, 
+                    pattern = 'Al(lan|an|len)$'),
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(n = sum(Count)) |>
+  group_by(State) |>
+  mutate(prop = n / sum(n)) |>
+  select(-n) |>
+  pivot_wider(names_from = Name, 
+              values_from = prop) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Alan", 
+                   "Allan",
+                   "Allen"),
+               caption = "Pectentage of variations of 'Allan' by PA and CA")|>
+  kable_material_dark(c("striped", "hover"))|>
+  kableExtra::kable_classic(bootstrap_options = "striped", 
+                            font_size = 28)
+
+```

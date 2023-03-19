@@ -1,0 +1,185 @@
+---
+title: "Lab 7"
+author: "Krishna Agrawal"
+format:
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+---
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(here)
+```
+
+```{r data}
+#| message: false
+blackfoot_fish <- read_csv(here("Week #7", "Lab_7", "BlackfootFish.csv"))
+```
+
+## 2.1
+
+```{r Summarizing Missing Data}
+blackfoot_fish |>
+  summarise(across(.cols = everything(),
+                   .fns = ~ sum(is.na(.x))))
+#add code to remove columns with values of zero
+  
+```
+
+Weight is the only variable with missing values. It has 1,796 missing values
+
+## 2.2
+
+```{r}
+#| warning: FALSE
+#| message: FALSE
+blackfoot_fish_na <- blackfoot_fish |>
+  mutate(across(.cols = c(trip, year:species),
+                .fns = ~ as.factor(.x))) |>
+  group_by(year, trip, section) |>
+  summarise(across(.cols = everything(),
+                   .fns = ~ sum(is.na(.x))))
+
+ggplot(data = blackfoot_fish_na,
+       mapping = aes(x = year, 
+                     y = weight,
+                     fill = trip)) +
+  geom_col(show.legend = FALSE) +
+  facet_grid(trip ~ section) +
+  labs(y = '',
+       x = "Year", 
+       title = "Number of Missing Fish Weight Values",
+       subtitle = "Based on Blackfoot River Section and Trip Number") +
+  theme(plot.title.position = 'plot') +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_fill_brewer(palette = 'Set1') 
+```
+
+# P2
+
+## 3.1 - 3.4
+
+```{r Writing a Function}
+#| layout-ncol: 1
+#| warning: FALSE
+#| message: FALSE
+#BlackfootFish <- BlackfootFish |> 
+#  mutate(length = (length - min(length, na.rm = TRUE)) / 
+#           (max(length, na.rm = TRUE) - min(length)), 
+#         weight = (weight - min(weight, na.rm = TRUE)) / 
+#           (max(weight, na.rm = TRUE) - min(length, na.rm = TRUE))
+#         )
+
+rescale_01 <- function(x) {
+  
+  stopifnot(is.numeric(x), 
+            length(x) > 1)
+  
+  min_max_val <- range(x, na.rm = TRUE)
+  
+  standardized <- ((x - min_max_val[1]) / (min_max_val[2] - min_max_val[1]))
+  
+  return(standardized)
+}
+
+
+# Test Simple
+x <- c(1:85, NA)
+rescale_01(x)
+
+# Test Complex
+plot_dataset <- blackfoot_fish |>
+  mutate(std_length = rescale_01(length)) 
+
+#plot_dataset |>
+#  ggplot(mapping = aes(x = length,
+#                       y = section)) +
+#    geom_boxplot() +
+#    labs(x = 'Length',
+#         y = '',
+#         title = "Length of Fish Caught between Two Sections of River") +
+#    theme(plot.title.position = 'plot')
+
+#plot_dataset |>
+#  ggplot(mapping = aes(x = std_length,
+#                       y = section)) +
+#    geom_boxplot() +
+#    labs(x = 'Standardized Length',
+#         y = '',
+#         title = "Standardized Length of Fish Caught between Two Sections of River") +
+#    theme(plot.title.position = 'plot')
+
+
+
+
+# Wanted to Test out plot functions
+
+histogram <- function(df, var, binwidth = NULL) {
+  df |> 
+    ggplot(aes(x = {{ var }})) + 
+    geom_histogram(binwidth = binwidth) +
+    labs(x = "Fish Length",
+         y = '',
+         title = "Distributions of Fish Length") +
+    theme(plot.title.position = 'plot')
+}
+
+plot_dataset |>
+  histogram(var = length) 
+
+plot_dataset |>
+  histogram(var = std_length) 
+
+
+    
+den_graph <- function(df, var) {
+  df |> 
+    ggplot(aes(x = {{ var }})) + 
+    geom_density() +
+    labs(x = "Fish Length",
+         y = '',
+         title = "Distributions of Fish Length") +
+    theme(plot.title.position = 'plot')
+}
+
+plot_dataset |>
+  den_graph(var = length) 
+
+plot_dataset |>
+  den_graph(var = std_length)  
+
+
+
+
+```
+
+REVISION - I previously created a visualization that contained two boxplots that contained the distribution of the length of the two sections of the river. I also did not stack my plots vertically as stated in the directions. At first, I thought there was a function that I was supposed to use and could not figure out how to stack my plots. I remembered in a previous lab activity we needed to place our visualizations side by side. This was accomplished with the use of code chunk options. I used the layout-col: option and specified it to one to ensure only one column of plots was shown. I also produced a density plot and histogram to showcase the "difference" in distributions between our standardized length and our original length.
+
+## 3.5 - 3.6
+
+```{r}
+rescale_column <- function(df, vars) {
+  
+  stopifnot(is.data.frame(df)
+            )
+  
+  df <- df |>
+    mutate(across(.cols = {{ vars }},
+                  ~ rescale_01(.x))
+           )
+  
+  return(df)
+}
+
+
+#Test
+
+rescale_column(df = blackfoot_fish,
+               var = c(weight, length))
+```
