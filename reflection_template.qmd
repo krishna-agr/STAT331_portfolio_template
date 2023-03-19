@@ -22,14 +22,12 @@ execute:
 -   `csv`
 
 ```{r wd-1-csv} Lab 5 Q1}
-#Any Assignment that occurs most often
 surveys <- read_csv(here("Week#2", "Lab_Week_2", "surveys.csv"))
 ```
 
 -   `xlsx`
 
 ```{r wd-1-xlsx} Practice Activity 4}
-#maybe some practice activity
 library(readxl) 
 library(tidyverse)
 
@@ -42,16 +40,14 @@ military <- read_xlsx(here::here("data",
 
 -   `txt`
 
-```{r wd-1-txt}
-# Practive Activty 5
+```{r wd-1-txt} Practice Activity 5.1}
 message <- read_csv(here::here("data", "scrambled_message.txt")
                       )
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
 
-```{r wd-2}
-#Lab 4 Q6
+```{r wd-2} Lab 4 Q6}
 # Create a new data set that only contains information on the 4 cities within CA
 # Data set will be used in visualization
 california_avocados <- city_avocados |>
@@ -71,8 +67,7 @@ california_avocados <- city_avocados |>
 
 -   numeric
 
-```{r wd-3-numeric}
-#Lab 3 Q 13
+```{r wd-3-numeric} Lab 3 Q 13}
 thirty_men <- hiphop_clean |>
   filter(simplify_ethnic == "white" & sex == "Male" & age > 30) |>
   mutate(familiarity = as.numeric(familiarity)) |>
@@ -82,19 +77,10 @@ thirty_men <- hiphop_clean |>
 
 -   character -- specifically a string
 
-```{r wd-3-string}
-#Lab 3 Q 13  
-thirty_men <- hiphop_clean |>
-  filter(simplify_ethnic == "white" & sex == "Male" & age > 30) |>
-  mutate(familiarity = as.numeric(familiarity)) |>
-  group_by(word) |>
-  summarize(mean_fam = mean(familiarity)) 
-
-thirty_men |>
-  slice_max(mean_fam)
-
-thirty_men |>
-  slice_min(mean_fam)
+```{r wd-3-string} Practice Activity 5.1 Q4}
+z_words <- message |>
+  filter(str_detect(Word, pattern = "z$"))
+print(z_words)
   
 ```
 
@@ -118,7 +104,7 @@ thirty_men |>
 -   date
 
 ```{r wd-3-date}
-# Practice Activity # 5
+# Practice Activity #5
 suspects <- read_csv(here::here("data",
                                 "suspect_times.csv")
                      )
@@ -131,24 +117,6 @@ suspects <- suspects |>
   filter(pm(Time.Spotted) == TRUE,
          wday(Time.Spotted) != c(3,5))
 
-Thanksgiving <- ymd(20181122, tz = "America/Los_Angeles")
-
-timeframe <- (Thanksgiving - days(35)) %--% (Thanksgiving + days(35))
-
-suspects <- suspects |>
-  filter(Time.Spotted %within% timeframe)
-
-Iceland <- with_tz(suspects$Time.Spotted, tzone = "Iceland")
-suspects <- suspects |>
-  filter(pm(Iceland) == TRUE,
-         day(Time.Spotted) %in% c(22, 23, 24))
-
-init <- ymd_hms("1970-01-01 0:0:0", tz = "America/Los_Angeles")
-
-suspects <- suspects |>
-  mutate(time = difftime(Time.Spotted, init, units = "mins"),
-         time = as.integer(time)) |>
-  filter(time %% 10 == 0)
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
