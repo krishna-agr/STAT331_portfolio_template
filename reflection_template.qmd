@@ -52,8 +52,9 @@ message <- read_csv(here::here("data", "scrambled_message.txt")
 # Data set will be used in visualization
 california_avocados <- city_avocados |>
   inner_join(cali_avocados,
-             by = c('region' = 'cali_region')) |>
-  mutate( region =  as.factor(region)) |>
+             by = c('region' = 'cali_region')
+             ) |>
+  mutate(region =  as.factor(region)) |>
   # Select relavent variables
   select(AveragePrice,
          type,
@@ -111,7 +112,8 @@ suspects <- read_csv(here::here("data",
 
 suspects <- suspects |>
   mutate(Time.Spotted = ymd_hms(Time.Spotted),
-         Time.Spotted = force_tz(Time.Spotted, tzone = "America/Los_Angeles"))
+         Time.Spotted = force_tz(Time.Spotted, 
+                                 tzone = "America/Los_Angeles"))
 
 suspects <- suspects |>
   filter(pm(Time.Spotted) == TRUE,
@@ -203,8 +205,7 @@ timeframe <- (Thanksgiving - days(35)) %--% (Thanksgiving + days(35))
 
 -   `left_join()`
 
-```{r wd-5-left}
-#Challange 4
+```{r wd-5-left} Challenge 4}
 
 california_avocados <- california_avocados |>
   left_join(y = med_housing_price, by = c('region' = 'city', 'year' = "Year")) |>
@@ -250,7 +251,7 @@ city_avocados <- avocados |>
 # Created a new data set that contains information for only the major regions
 region_avocado <- avocados |>
   semi_join(major_region_df,
-             by = c('region' = 'major_region'))
+            by = c('region' = 'major_region'))
 
 ```
 
@@ -1130,6 +1131,8 @@ Throughout the course of this class, I have made it a priority to reflect on the
 During the initial weeks of this class, it was hard to go above and beyond, as the class only met once for the first two weeks, and it had been over a year since I last engaged in programming as part of my BUS 392 course. As a result, during the first two lab and challenge assignments, I could not devote extra time to incorporate "extras". I opted for the least "spicy" option for my challenge assignment as I did not have the bandwidth at the time to go above and beyond.
 
 However, later on, beginning in weeks #3 and #4, I made a priority to go above in my assignments. For instance, in Lab 4, I used external resources to learn how to remove the scientific notation from my axis and how to specify the levels in my factor variable in order to correct the order in my visualizations. While using these external sources to enhance my visualizations, I made sure to include proper citation of sources. I also started to document my code by inserting comments before each line of code which provides the reader insight into my thought process.
+
+I also used what we learned in Will Chase's Presentation in Week#5 throughout the rest of the quarter to make sure my plots were adhering to the best practices. I also read through the linked website regarding datatables in the slides for week #9 in order to create creative table outputs.
 
 ## Peer Support & Collaboration
 
