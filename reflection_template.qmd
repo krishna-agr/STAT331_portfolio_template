@@ -352,6 +352,10 @@ mean_difference <- california_avocados |>
 
 I've done this in the following provided assignments:
 
+Lab 4 - Writing code with documentation for each code chunk.
+
+In all of my assignments, I have used the "here" package and have used Quarto documents
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example 1
@@ -539,26 +543,17 @@ ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +
 
 -   numeric variables and categorical variables
 
-```{r dvs-2-num-cat} Lab 4 Q7}
-ggplot(data = q7_california_avocados, 
-       mapping = aes(x = region, 
-                     y = percent_sold, 
-                     fill = Avocado_Size))+
-  geom_col(position = "fill") +
-  facet_wrap(~type) +
-  # Use dodge function to offset the x axis labels
-  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
-  # Specify the legend title and labels and change the colors of the graph 
-  scale_fill_manual(values = c("#A6CEE3", 
-                               "#1F78B4", 
-                               "#B2DF8A"),
-                    name = "Avocado Size",
-                    labels = c("Small", 
-                               "Large", 
-                               "Extra-Large")) +
-  # Specify the Axis Labels
-  labs(x = 'Region of CA',
-       y = "Proporation of Mean Avocados Sold")
+```{r dvs-2-num-cat} Lab 5 Q1.2}
+ggplot(data = surveys, 
+       mapping = aes(y = fct_reorder(species,weight), 
+                     x = weight)) +
+   geom_jitter(color = "darkseagreen",
+               alpha = .1) +
+   geom_boxplot(outlier.shape = NA) +
+   labs(y = '',
+        x = "Weight (grams)", 
+        title = "Species of Animal vs Weight in grams") +
+   theme(plot.title.position = 'plot')
 ```
 
 -   categorical variables
